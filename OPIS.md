@@ -25,6 +25,6 @@ Nove verzije se instaliraju preko stare i ništa se ne gubi. Većina novih stvar
 - Aplikacija ne traži lokaciju, kontakte, kameru ni bilo kakvu dozvolu osim interneta.
 - Nema reklama.
 
-Na iPhone-u APK ne radi. Tamo otvori link aplikacije u Safari-ju i izaberi „Dodaj na početni ekran“.
+Na iPhone-u APK ne radi. Tamo otvori **https://netmi123.github.io/dnevnik-goriva-app/** u Safari-ju, dodirni Podeli i izaberi „Dodaj na početni ekran“.
 
 *Aplikacija radi preko Claude-a (Anthropic), pa se pri otvaranju učitava sa claude.ai.*

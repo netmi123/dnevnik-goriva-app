@@ -1,0 +1,1835 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Dnevnik goriva</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="ikonica-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Dnevnik goriva">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ECEFF0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F1214" media="(prefers-color-scheme: dark)">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow logbook column, phone first, with an app-style tab bar at the bottom.
+   The dark pump-display panel is the single loud element; everything else stays quiet. */
+:root{
+  --bg:#ECEFF0; --surface:#FFFFFF; --ink:#14191C; --muted:#57636A; --line:#D2D9DC;
+  --accent:#D98A00; --accent-ink:#8A5300; --accent-soft:#FAEACB; --on-accent:#1C1406; --bar-soft:#E8C887;
+  --panel:#1B2124; --panel-ink:#FFB52E; --panel-text:#E4E9EB; --panel-dim:#83919A; --panel-glow:rgba(255,181,46,.32);
+  --good:#2C7A4B; --good-soft:#DCEFE2; --bad:#A93A2C; --bad-soft:#F6DFDA; --chip:#E5EAEC;
+  --font-display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --font-body:"Barlow","Segoe UI",system-ui,sans-serif;
+  --font-data:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1214; --surface:#171B1E; --ink:#E6EBED; --muted:#929CA2; --line:#2A3135;
+    --accent:#F2A61B; --accent-ink:#F5BA4E; --accent-soft:#33280F; --on-accent:#1C1406; --bar-soft:#6B5020;
+    --panel:#08090A; --panel-ink:#FFB52E; --panel-text:#E4E9EB; --panel-dim:#74828A; --panel-glow:rgba(255,181,46,.32);
+    --good:#62C28A; --good-soft:#15301F; --bad:#F08273; --bad-soft:#3A1C18; --chip:#232A2E;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1214; --surface:#171B1E; --ink:#E6EBED; --muted:#929CA2; --line:#2A3135;
+  --accent:#F2A61B; --accent-ink:#F5BA4E; --accent-soft:#33280F; --on-accent:#1C1406; --bar-soft:#6B5020;
+  --panel:#08090A; --panel-ink:#FFB52E; --panel-text:#E4E9EB; --panel-dim:#74828A; --panel-glow:rgba(255,181,46,.32);
+  --good:#62C28A; --good-soft:#15301F; --bad:#F08273; --bad-soft:#3A1C18; --chip:#232A2E;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:22px 110px;display:grid;gap:18px}
+.view{display:grid;gap:18px;min-width:0}
+
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px}
+h1{font-family:var(--font-display);font-weight:700;font-size:2.1rem;line-height:.95;margin:0;text-transform:uppercase;letter-spacing:.01em}
+.car-switch{display:flex;align-items:center;gap:8px;min-width:0;max-width:100%}
+.car-switch > span:first-child{font-family:var(--font-display);font-weight:600;text-transform:uppercase;letter-spacing:.1em;font-size:.8rem;color:var(--muted)}
+.car-switch select{min-width:150px;max-width:62vw}
+.mode{margin:-8px 0 0;font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:7px}
+.mode::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--line);flex:none}
+.mode[data-state="db"]::before{background:var(--good)}
+.mode[data-state="local"]::before{background:var(--accent)}
+.mode[data-state="warn"]::before{background:var(--bad)}
+
+.banner{margin:0;background:var(--accent-soft);border-radius:10px;padding:12px 16px;font-size:.95rem}
+.notice{margin:0;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:.95rem}
+.notice.warn{border-color:var(--accent);background:var(--accent-soft)}
+.notice.bad{border-color:var(--bad);background:var(--bad-soft)}
+
+.pump{background:var(--panel);color:var(--panel-text);border-radius:14px;padding:20px 22px 22px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px 32px;align-items:end}
+.pump-label{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-weight:600;text-transform:uppercase;letter-spacing:.12em;font-size:.8rem;color:var(--panel-dim)}
+.tag{font-size:.68rem;letter-spacing:.12em;border:1px solid var(--panel-dim);color:var(--panel-ink);border-radius:99px;padding:0 7px;line-height:1.6}
+.pump-value{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin-top:8px}
+#bigVal{font-family:var(--font-data);font-weight:600;font-size:clamp(3rem, 13vw, 4.8rem);line-height:1;color:var(--panel-ink);font-variant-numeric:tabular-nums;text-shadow:0 0 22px var(--panel-glow)}
+.unit{font-family:var(--font-display);font-weight:600;font-size:1.15rem;letter-spacing:.06em;color:var(--panel-dim)}
+.pump-side{display:grid;gap:14px;text-align:right}
+.pump-side .pump-label{justify-content:flex-end}
+.pump-small{display:block;font-family:var(--font-data);font-size:1.3rem;font-weight:500;color:var(--panel-text);font-variant-numeric:tabular-nums;margin-top:2px}
+.pump-note{grid-column:1 / -1;margin:0;font-size:.9rem;color:var(--panel-text);border-top:1px solid var(--panel-dim);padding-top:12px}
+@media (max-width:540px){
+  .pump{grid-template-columns:1fr}
+  .pump-side{grid-template-columns:1fr 1fr;text-align:left}
+  .pump-side .pump-label{justify-content:flex-start}
+}
+
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:0}
+.stat{background:var(--surface);padding:14px 16px;min-width:0}
+.stat dt{font-family:var(--font-display);font-weight:600;text-transform:uppercase;letter-spacing:.08em;font-size:.78rem;color:var(--muted)}
+.stat dd{margin:4px 0 0;font-family:var(--font-data);font-size:1.3rem;font-weight:500;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.stat small{font-family:var(--font-body);font-size:.85rem;color:var(--muted);font-weight:500}
+@media (max-width:640px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 18px 20px;min-width:0}
+h2{font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:1.05rem;margin:0}
+h3{font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:.95rem;margin:0}
+.count{font-size:.85rem;color:var(--muted)}
+.card-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;margin-bottom:12px}
+.stack{display:grid;gap:12px}
+
+.fuel-pick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:start}
+.fuel-col{display:grid;gap:10px;min-width:0}
+.fuel{display:grid;grid-template-columns:minmax(0,1fr);align-items:start;gap:4px;text-align:left;font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);cursor:pointer;min-width:0}
+.fuel[aria-checked="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.fuel:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.f-name{display:flex;align-items:center;gap:8px;font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.f-name::before{content:"";width:12px;height:12px;border-radius:50%;border:2px solid var(--muted);flex:none}
+.fuel[aria-checked="true"] .f-name::before{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 2px var(--accent-soft)}
+.f-price{font-family:var(--font-data);font-size:1.45rem;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.2;margin-top:2px}
+.f-price small{font-family:var(--font-body);font-size:.8rem;font-weight:500;color:var(--muted)}
+.f-old{font-family:var(--font-data);font-size:.85rem;color:var(--muted);text-decoration:line-through}
+.f-chg{font-size:.8rem;font-weight:600;color:var(--muted);min-height:1.2em}
+.f-chg.up{color:var(--bad)}
+.f-chg.down{color:var(--good)}
+.f-disc{font-size:.8rem;font-weight:600;color:var(--good)}
+.price-line{margin:14px 0 0;font-size:.98rem}
+.price-line strong{font-family:var(--font-data);font-weight:600}
+
+.fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.fields.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:640px){.fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.field{display:grid;gap:5px;min-width:0;align-content:start}
+.field > span:first-child{font-size:.85rem;font-weight:600;color:var(--muted);display:flex;align-items:center;gap:6px}
+.field input,.field select{font:inherit;font-size:1rem;width:100%;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.field input{font-family:var(--font-data);font-variant-numeric:tabular-nums}
+.field input[type="date"],.field input.txt{font-family:var(--font-body)}
+.field input::placeholder{color:var(--muted);opacity:.75}
+.field input:focus-visible,.field select:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.field input[aria-invalid="true"]{border-color:var(--bad)}
+.field input:disabled{opacity:.45;cursor:not-allowed}
+.field-note{font-size:.8rem;color:var(--muted);line-height:1.35}
+.field-note.ok{color:var(--good)}
+.field-note.err{color:var(--bad)}
+.select-wrap{position:relative;display:block}
+.select-wrap::after{content:"";position:absolute;right:15px;top:50%;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+select{font:inherit;font-size:1rem;font-weight:500;padding:10px 38px 10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);appearance:none;-webkit-appearance:none;cursor:pointer;width:100%}
+select:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+
+.q{width:20px;height:20px;border-radius:50%;border:1px solid var(--muted);background:transparent;color:var(--muted);font:600 .75rem/1 var(--font-body);display:inline-grid;place-items:center;padding:0;cursor:pointer;flex:none}
+.q[aria-expanded="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+.q:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.hint{margin:0;font-size:.85rem;color:var(--ink);background:var(--bg);border-radius:8px;padding:8px 10px;max-width:62ch}
+
+.check{display:flex;gap:10px;align-items:flex-start;font-size:.92rem;cursor:pointer;max-width:66ch}
+.check input{width:18px;height:18px;accent-color:var(--accent);margin:2px 0 0;flex:none}
+.check input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.check strong{font-weight:600}
+
+.gauge-set{border:0;padding:0;margin:0;min-width:0}
+.gauge-set legend{padding:0;font-size:.85rem;font-weight:600;color:var(--muted);margin-bottom:6px}
+.gauge{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.gauge input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.gauge label{display:grid;gap:7px;justify-items:center;padding:10px 8px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);cursor:pointer;min-width:0}
+.g-val{font-family:var(--font-data);font-weight:600;font-size:1.15rem;line-height:1}
+.g-bar{display:block;width:100%;max-width:72px;height:6px;border-radius:3px;background:var(--line);position:relative;overflow:hidden}
+.g-bar::after{content:"";position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:3px}
+.g25::after{width:25%} .g50::after{width:50%} .g75::after{width:75%} .g100::after{width:100%}
+.gauge input:checked + label{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.gauge input:focus-visible + label{outline:2px solid var(--accent);outline-offset:2px}
+
+.linkbtn{font:inherit;font-size:.9rem;font-weight:600;color:var(--accent-ink);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.linkbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+.form-foot{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;justify-content:space-between}
+.price-hint{margin:0;font-family:var(--font-data);font-size:.88rem;color:var(--muted)}
+.btn{font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-size:1rem;padding:12px 22px;border:0;border-radius:8px;background:var(--accent);color:var(--on-accent);cursor:pointer;transition:filter .15s;text-decoration:none;display:inline-block}
+.btn:hover{filter:brightness(1.07)}
+.btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.btn:disabled{opacity:.6;cursor:default}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.small{font-size:.85rem;padding:8px 14px}
+.btn.danger{background:transparent;color:var(--bad);border:1px solid var(--bad)}
+.btn.danger[data-armed]{background:var(--bad);color:var(--surface)}
+.btns{display:flex;flex-wrap:wrap;gap:10px}
+.msg{margin:0;min-height:1.5em;font-size:.92rem}
+.msg.ok{color:var(--good)}
+.msg.err{color:var(--bad)}
+.how{margin:0;font-size:.85rem;color:var(--muted);max-width:66ch}
+
+.charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:640px){.charts{grid-template-columns:1fr}}
+.chart{margin:0}
+.chart figcaption{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;margin-bottom:10px}
+.legend{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--muted)}
+.lg{display:inline-block;width:16px;height:0;border-top:2px solid var(--accent)}
+.lg.avg{border-top:1.5px dashed var(--muted);margin-left:8px}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.c-grid{stroke:var(--line);stroke-width:1}
+.c-base{stroke:var(--muted);stroke-width:1;opacity:.6}
+.c-line{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.c-area{fill:var(--accent);fill-opacity:.13;stroke:none}
+.c-avg{stroke:var(--muted);stroke-width:1.2;stroke-dasharray:4 4}
+.c-dot{fill:var(--surface);stroke:var(--accent);stroke-width:2}
+.c-dot.last{fill:var(--accent)}
+.c-bar{fill:var(--accent)}
+.c-bar.soft{fill:var(--bar-soft)}
+.c-txt{fill:var(--muted);font-family:var(--font-data);font-size:10px}
+.c-txt.cur{fill:var(--ink);font-weight:600}
+.c-val{fill:var(--ink);font-family:var(--font-data);font-size:10.5px;font-weight:600;paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round}
+
+.list{list-style:none;margin:0;padding:0}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 14px;padding:12px 0;border-top:1px solid var(--line);align-items:center}
+.row:first-child{border-top:0}
+.r-main{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 12px;font-weight:600;min-width:0}
+.r-cost{font-family:var(--font-data);font-weight:500;font-variant-numeric:tabular-nums}
+.r-read{font-family:var(--font-body);font-weight:600;color:var(--accent-ink)}
+.r-meta{grid-column:1;display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;font-family:var(--font-data);font-size:.84rem;color:var(--muted);font-variant-numeric:tabular-nums;min-width:0}
+.chip{font-family:var(--font-data);font-size:.8rem;padding:1px 9px;border-radius:99px;background:var(--chip);color:var(--ink)}
+.chip.hi{background:var(--bad-soft);color:var(--bad)}
+.chip.lo{background:var(--good-soft);color:var(--good)}
+.chip.car{font-family:var(--font-body);font-weight:600}
+.save{color:var(--good);font-family:var(--font-body);font-weight:600}
+.del{grid-column:2;grid-row:1 / span 2;font:inherit;font-size:.85rem;font-weight:600;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.del:hover{color:var(--ink);border-color:var(--muted)}
+.del:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.del[data-armed]{background:var(--bad-soft);color:var(--bad);border-color:var(--bad)}
+.empty-list{padding:12px 0 2px;color:var(--muted);margin:0}
+
+/* settings */
+.car-item{display:grid;gap:12px;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.car-item.active{border-color:var(--accent)}
+.car-item-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.car-item .field input{background:var(--surface)}
+.pill{font-size:.75rem;font-weight:600;padding:1px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent-ink)}
+.seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.seg button{font:inherit;font-weight:600;font-size:.92rem;padding:10px 8px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.choice{display:grid;gap:8px}
+.choice button{display:grid;gap:2px;text-align:left;font:inherit;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);cursor:pointer}
+.choice button strong{font-weight:600}
+.choice button span{font-size:.85rem;color:var(--muted)}
+.choice button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.choice button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wizard{display:grid;gap:14px;padding:16px;border:1px solid var(--accent);border-radius:10px;background:var(--bg)}
+.steps{font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.summary{margin:0;padding:10px 12px;border-radius:8px;background:var(--good-soft);color:var(--good);font-weight:600}
+.disc-item{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 14px;padding:12px 0;border-top:1px solid var(--line)}
+.disc-item:first-child{border-top:0}
+.disc-item p{margin:0}
+.disc-item small{display:block;color:var(--muted);font-size:.85rem}
+.prose p{margin:0 0 10px;max-width:66ch;font-size:.95rem}
+.prose p:last-child{margin-bottom:0}
+textarea{font:400 .8rem/1.4 var(--font-data);width:100%;min-height:140px;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+
+/* statistics */
+.kv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 14px;margin:0}
+.kv dt{padding:9px 0;border-top:1px solid var(--line);color:var(--muted);font-size:.95rem;min-width:0}
+.kv dd{padding:9px 0;border-top:1px solid var(--line);margin:0;font-family:var(--font-data);font-weight:500;text-align:right;font-variant-numeric:tabular-nums}
+.kv dt:first-of-type,.kv dd:first-of-type{border-top:0}
+.kv dd small{display:block;font-family:var(--font-body);font-size:.78rem;color:var(--muted);font-weight:400}
+.fun{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.fun li{padding:12px 14px;border-radius:10px;background:var(--accent-soft);font-size:.98rem}
+.fun strong{font-family:var(--font-data)}
+.table-wrap{overflow-x:auto}
+table.cmp{border-collapse:collapse;width:100%;min-width:420px;font-size:.92rem}
+table.cmp th,table.cmp td{padding:9px 8px;border-top:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+table.cmp th:first-child,table.cmp td:first-child{text-align:left}
+table.cmp thead th{border-top:0;font-family:var(--font-display);text-transform:uppercase;letter-spacing:.06em;font-size:.78rem;color:var(--muted)}
+table.cmp td{font-family:var(--font-data)}
+table.cmp td:first-child{font-family:var(--font-body);font-weight:600}
+table.cmp tr.total td{font-weight:600;border-top:2px solid var(--line)}
+
+/* tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));padding:6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px))}
+.tab{font:inherit;background:none;border:0;color:var(--muted);padding:6px 4px;display:grid;justify-items:center;gap:3px;font-family:var(--font-display);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:.78rem;cursor:pointer;border-radius:8px}
+.tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab[aria-selected="true"]{color:var(--accent-ink)}
+.tab:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+
+.srv{display:grid;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+.srv:first-child{padding-top:0;border-top:0}
+.srv-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px}
+.srv-every{font-size:.85rem;color:var(--muted)}
+.srv-bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.srv-bar span{display:block;height:100%;background:var(--good);border-radius:4px}
+.srv-bar span.warn{background:var(--accent)}
+.srv-bar span.bad{background:var(--bad)}
+.srv-line{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px}
+.srv-txt{font-size:.92rem}
+.srv-txt.bad{color:var(--bad);font-weight:600}
+.foot{margin:0;font-size:.85rem;color:var(--muted);max-width:68ch}
+.is-sample #bigVal,.is-sample .pump-small,.is-sample .stat dd,.is-sample .chart svg,.is-sample #list{opacity:.6}
+
+@media (prefers-reduced-motion: reduce){*{transition:none !important}}
+</style>
+
+<div class="wrap" id="app">
+  <header class="top">
+    <h1>Dnevnik goriva</h1>
+    <label class="car-switch" for="carSel"><span>Auto</span><span class="select-wrap"><select id="carSel"></select></span></label>
+  </header>
+  <p class="mode" id="mode" data-state="loading">Učitavam…</p>
+
+  <!-- ===================== POČETNA ===================== -->
+  <section class="view" id="view-home" aria-label="Početna">
+    <p class="banner" id="banner">Ovo su primer brojevi, da vidiš kako dnevnik radi. Upiši svoje prvo sipanje i primer nestaje.</p>
+    <div class="notice warn" id="servisNote" hidden></div>
+    <div class="notice" id="capNote" hidden><span>Upiši veličinu rezervoara da bi se računala potrošnja.</span><button type="button" class="btn small" data-goto="settings">Garaža</button></div>
+
+    <section class="pump" aria-label="Pregled">
+      <div>
+        <span class="pump-label"><span id="bigLabel">Prosečna potrošnja</span> <span class="tag sample-only">primer</span></span>
+        <div class="pump-value"><span id="bigVal">–</span><span class="unit" id="bigUnit">l/100 km</span></div>
+      </div>
+      <div class="pump-side">
+        <div><span class="pump-label" id="side1Label">Poslednji period</span><span class="pump-small" id="side1">–</span></div>
+        <div><span class="pump-label" id="side2Label">Cena po km</span><span class="pump-small" id="side2">–</span></div>
+      </div>
+      <p class="pump-note" id="pumpNote" hidden></p>
+    </section>
+
+    <dl class="stats">
+      <div class="stat"><dt>Ovog meseca</dt><dd><span id="sMonth">–</span> <small>din</small></dd></div>
+      <div class="stat"><dt>Sipano ovog meseca</dt><dd><span id="sMonthL">–</span> <small>l</small></dd></div>
+      <div class="stat"><dt>Pređeno</dt><dd><span id="sDist">–</span> <small>km</small></dd></div>
+      <div class="stat"><dt>Sipanja</dt><dd><span id="sCount">–</span></dd></div>
+    </dl>
+
+    <section class="card" id="servisCard" aria-labelledby="servisTitle" hidden>
+      <div class="card-head"><h2 id="servisTitle">Servis</h2><button type="button" class="q" aria-expanded="false" aria-controls="hSrv" aria-label="Objašnjenje za servis">?</button></div>
+      <p class="hint" id="hSrv" hidden style="margin-bottom:12px">Mali servis je obično zamena ulja i filtera. Veliki servis je ozbiljniji, npr. zupčasti kaiš i pumpa za vodu. Koliko često se rade piše u servisnoj knjižici. Kad uradiš servis, dodirni „Urađen“ i brojanje kreće ispočetka od trenutne kilometraže.</p>
+      <div class="stack" id="servisRows"></div>
+      <p class="how" style="margin-top:12px">Računa se iz kilometraže koju upisuješ. Ako je ne upisuješ redovno, podsetnik može da kasni ili da ne bude tačan, pa uvek proveri i servisnu knjižicu.</p>
+    </section>
+
+    <section class="card" id="pricesCard" aria-labelledby="pricesTitle">
+      <div class="card-head">
+        <h2 id="pricesTitle">Gorivo i cene</h2>
+        <span class="count" id="priceValid"></span>
+      </div>
+      <div class="stack">
+        <label class="field" for="fPump">
+          <span>Pumpa* <button type="button" class="q" aria-expanded="false" aria-controls="hPump" aria-label="Objašnjenje za pumpu">?</button></span>
+          <span class="select-wrap">
+            <select id="fPump">
+              <option value="">Bilo koja pumpa</option>
+              <option value="nis">NIS Petrol</option>
+              <option value="mol">MOL</option>
+              <option value="omv">OMV</option>
+              <option value="eko">EKO</option>
+              <option value="avia">AVIA</option>
+              <option value="europetrol">Euro Petrol</option>
+            </select>
+          </span>
+          <small class="field-note">* Pumpu biraj samo ako sipaš premium gorivo ili imaš popust na njoj.</small>
+        </label>
+        <p class="hint" id="hPump" hidden>Evrodizel i BMB 95 koštaju isto na svim pumpama, jer država određuje najvišu cenu. Premium goriva svaka pumpa naplaćuje po svom. Kad izabereš pumpu, vidiš njena premium goriva, a ako imaš popust na njoj, on se sam uračuna.</p>
+        <div class="notice warn" id="tipDisc" hidden><span>Imaš popust na ovoj pumpi, npr. preko njihove aplikacije? Dodaj ga jednom i računaće se sam.</span><span class="btns"><button type="button" class="btn small" id="tipAdd">Dodaj popust</button><button type="button" class="btn small ghost" id="tipOk">U redu</button></span></div>
+        <div class="fuel-pick" role="radiogroup" aria-label="Gorivo koje sipaš">
+          <div class="fuel-col" id="colDiesel"></div>
+          <div class="fuel-col" id="colPetrol"></div>
+        </div>
+      </div>
+      <p class="price-line" id="priceLine" hidden></p>
+    </section>
+
+    <section class="card" id="formCard" aria-labelledby="formTitle">
+      <div class="card-head"><h2 id="formTitle">Novo sipanje</h2><span class="count" id="formCar"></span></div>
+      <form id="form" class="stack" novalidate>
+        <div class="fields">
+          <label class="field" for="fDate"><span>Datum</span><input id="fDate" type="date"></label>
+          <label class="field" for="fL"><span>Litara</span><input id="fL" type="text" inputmode="decimal" autocomplete="off" placeholder="npr. 30"></label>
+          <label class="field" for="fCost"><span>Ili dinara</span><input id="fCost" type="text" inputmode="decimal" autocomplete="off" placeholder="npr. 5000"></label>
+          <label class="field" for="fKm"><span>Kilometraža (kad stigneš)</span><input id="fKm" type="text" inputmode="numeric" autocomplete="off" placeholder="sa sata"></label>
+        </div>
+        <div>
+          <button type="button" class="linkbtn" id="couponToggle" aria-expanded="false" aria-controls="couponBox">Imam kupon za ovo sipanje</button>
+          <div class="fields two" id="couponBox" hidden style="margin-top:10px">
+            <label class="field" for="fCoupon"><span>Kupon: dinara manje po litru</span><input id="fCoupon" type="text" inputmode="decimal" autocomplete="off" placeholder="npr. 10"><small class="field-note" id="couponNote" hidden></small></label>
+          </div>
+        </div>
+        <label class="check" for="fNoDisc" id="noDiscRow" hidden>
+          <input id="fNoDisc" type="checkbox">
+          <span><strong>Bez popusta ovaj put.</strong> <span id="noDiscTxt">Važi samo za ovo sipanje, posle se popust opet računa sam.</span></span>
+        </label>
+        <label class="check" for="fRead">
+          <input id="fRead" type="checkbox">
+          <span><strong>Samo očitavanje, nisam sipao.</strong> Upiši kilometražu i gde je kazaljka sada. Ništa se ne dodaje u troškove, a potrošnja na 100 km je tačnija i stiže brže.</span>
+        </label>
+        <fieldset class="gauge-set">
+          <legend id="gaugeLegend">Gde je kazaljka posle sipanja?</legend>
+          <div class="gauge">
+            <input type="radio" name="nivo" id="n1" value="0.25"><label for="n1"><span class="g-val">¼</span><span class="g-bar g25"></span></label>
+            <input type="radio" name="nivo" id="n2" value="0.5"><label for="n2"><span class="g-val">½</span><span class="g-bar g50"></span></label>
+            <input type="radio" name="nivo" id="n3" value="0.75"><label for="n3"><span class="g-val">¾</span><span class="g-bar g75"></span></label>
+            <input type="radio" name="nivo" id="n4" value="1"><label for="n4"><span class="g-val">Puno</span><span class="g-bar g100"></span></label>
+          </div>
+        </fieldset>
+        <div class="form-foot">
+          <p class="price-hint" id="priceHint">Upiši litre ili dinare, drugo se popuni samo.</p>
+          <button type="submit" class="btn" id="saveBtn">Sačuvaj sipanje</button>
+        </div>
+        <p class="msg" id="msg" role="status" aria-live="polite"></p>
+        <p class="how">Iz kazaljke i veličine rezervoara se vidi koliko je goriva potrošeno, pa ne moraš da sipaš do kraja. Kilometražu upiši kad stigneš, recimo jednom nedeljno.</p>
+      </form>
+    </section>
+
+    <div class="notice" id="pickCarNote" hidden><span>Izaberi auto gore da upišeš sipanje.</span></div>
+
+    <section class="charts" aria-label="Grafikoni">
+      <figure class="card chart" id="consChartCard">
+        <figcaption><h2>Potrošnja</h2><span class="legend"><i class="lg"></i>l/100 km<i class="lg avg"></i>prosek</span></figcaption>
+        <svg id="chCons" viewBox="0 0 320 170" role="img" aria-label="Potrošnja po periodima, u litrima na 100 km"></svg>
+      </figure>
+      <figure class="card chart">
+        <figcaption><h2>Troškovi po mesecu</h2><span class="legend">dinara</span></figcaption>
+        <svg id="chMonth" viewBox="0 0 320 170" role="img" aria-label="Troškovi goriva po mesecu, u dinarima"></svg>
+      </figure>
+    </section>
+
+    <section class="card" aria-labelledby="histTitle">
+      <div class="card-head"><h2 id="histTitle">Istorija</h2><span class="count" id="count"></span></div>
+      <ul class="list" id="list"></ul>
+    </section>
+  </section>
+
+  <!-- ===================== STATISTIKA ===================== -->
+  <section class="view" id="view-stats" aria-label="Statistika" hidden>
+    <section class="card">
+      <div class="card-head"><h2>Statistika</h2><span class="count" id="statsScope"></span></div>
+      <div class="seg" role="group" aria-label="Period" id="periodSeg">
+        <button type="button" data-period="mesec" aria-pressed="false">Ovaj mesec</button>
+        <button type="button" data-period="3m" aria-pressed="false">3 meseca</button>
+        <button type="button" data-period="godina" aria-pressed="false">Ova godina</button>
+        <button type="button" data-period="sve" aria-pressed="true">Sve</button>
+      </div>
+    </section>
+    <div id="statsBody" class="view"></div>
+  </section>
+
+  <!-- ===================== PODEŠAVANJA ===================== -->
+  <section class="view" id="view-settings" aria-label="Podešavanja" hidden>
+    <section class="card" aria-labelledby="garTitle">
+      <div class="card-head"><h2 id="garTitle">Garaža</h2><button type="button" class="q" aria-expanded="false" aria-controls="hGar" aria-label="Objašnjenje za garažu">?</button></div>
+      <p class="hint" id="hGar" hidden style="margin-bottom:12px">Svaki auto ima svoj rezervoar, gorivo i servis, i svoja sipanja. Auto biraš gore u aplikaciji. „Sve zajedno“ pokazuje zbir za sve automobile.</p>
+      <div class="stack" id="garage"></div>
+      <div class="btns" style="margin-top:12px"><button type="button" class="btn small" id="addCar">+ Dodaj auto</button></div>
+    </section>
+
+    <section class="card" aria-labelledby="discTitle">
+      <div class="card-head"><h2 id="discTitle">Moji popusti</h2><button type="button" class="q" aria-expanded="false" aria-controls="hDisc" aria-label="Objašnjenje za popuste">?</button></div>
+      <p class="hint" id="hDisc" hidden style="margin-bottom:12px">Ako preko aplikacije ili kartice neke pumpe dobijaš popust, upiši ga ovde jednom. Kad sipaš na toj pumpi, aplikacija ga sama uračuna u cenu, a u statistici vidiš koliko si uštedeo.</p>
+      <div id="discList"></div>
+      <div id="wizard" hidden></div>
+      <div class="btns" style="margin-top:12px"><button type="button" class="btn small" id="addDisc">+ Dodaj popust</button></div>
+    </section>
+
+    <section class="card" aria-labelledby="lookTitle">
+      <div class="card-head"><h2 id="lookTitle">Izgled</h2></div>
+      <div class="seg" role="group" aria-label="Tema" id="themeSeg">
+        <button type="button" data-theme-choice="sistem" aria-pressed="true">Kao telefon</button>
+        <button type="button" data-theme-choice="svetla" aria-pressed="false">Svetla</button>
+        <button type="button" data-theme-choice="tamna" aria-pressed="false">Tamna</button>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="dataTitle">
+      <div class="card-head"><h2 id="dataTitle">Podaci</h2></div>
+      <div class="stack">
+        <p class="how">Skini sva sipanja kao tabelu koja se otvara u Excel-u, za svaki slučaj ili da pokažeš nekom.</p>
+        <div class="btns"><button type="button" class="btn small" id="exportBtn">Izvezi u tabelu</button></div>
+        <div id="exportBox" hidden class="stack">
+          <p class="how">Ako preuzimanje ne radi, tabela je ispod. Kopiraj je i nalepi u Excel ili u belešku.</p>
+          <textarea id="exportText" readonly aria-label="Tabela sipanja"></textarea>
+          <div class="btns"><button type="button" class="btn small ghost" id="copyExport">Kopiraj</button></div>
+        </div>
+        <p class="msg" id="dataMsg" role="status"></p>
+        <div class="btns">
+          <button type="button" class="btn small danger" id="delCarData">Obriši sipanja ovog auta</button>
+          <button type="button" class="btn small danger" id="delAll">Obriši sve podatke</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="accTitle" id="accCard">
+      <div class="card-head"><h2 id="accTitle">Nalog</h2></div>
+      <div class="prose" id="accBody"></div>
+    </section>
+
+    <section class="card" aria-labelledby="aboutTitle">
+      <div class="card-head"><h2 id="aboutTitle">O aplikaciji</h2></div>
+      <div class="prose">
+        <p><strong>Kako se računa potrošnja.</strong> Za svako sipanje znaš koliko si sipao i gde je kazaljka posle toga. Iz veličine rezervoara se vidi koliko goriva ima u njemu. Kad dvaput upišeš kilometražu, aplikacija sabere sve sipano između ta dva upisa, uračuna razliku u rezervoaru i podeli pređenim kilometrima. Kazaljka nije precizna, ali greška utiče samo na početak i kraj, pa je prosek sve tačniji kako dodaješ podatke.</p>
+        <p><strong>Cene.</strong> <span id="aboutPrices"></span></p>
+        <p><strong>Tvoji podaci.</strong> <span id="aboutData"></span></p>
+        <p><strong>Napomena.</strong> Svi brojevi u aplikaciji su procena, a koliko su tačni zavisi od tvojih upisa. Ako sipanja ne upisuješ redovno, ako kazaljku proceniš otprilike ili retko upisuješ kilometražu, potrošnja i troškovi mogu da osciliraju i da se razlikuju od stvarnih. Cene goriva i popusti preuzimaju se iz javnih izvora jednom nedeljno, pa se mogu razlikovati od cene na pumpi. Za tačan iznos uvek važi račun sa pumpe.</p>
+      </div>
+    </section>
+  </section>
+
+  <p class="foot">Brojevi su procena i tačniji su što redovnije upisuješ. Cene se mogu razlikovati od cene na pumpi. <button type="button" class="linkbtn" data-goto="settings" data-about="1">Više o tome</button></p>
+</div>
+
+<nav class="tabbar" role="tablist" aria-label="Delovi aplikacije">
+  <button type="button" class="tab" role="tab" id="tab-home" aria-controls="view-home" aria-selected="true" data-view="home">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v14M4 20h12M8 8h4M15 9h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V8l-3-3"/></svg>Početna</button>
+  <button type="button" class="tab" role="tab" id="tab-stats" aria-controls="view-stats" aria-selected="false" data-view="stats">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Statistika</button>
+  <button type="button" class="tab" role="tab" id="tab-settings" aria-controls="view-settings" aria-selected="false" data-view="settings">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Podešavanja</button>
+</nav>
+
+<script>
+(function(){
+  "use strict";
+  var $ = function(id){ return document.getElementById(id); };
+  /* The same page runs inside Claude (artifact) and on its own as a website; this tells them apart. */
+  var WEB = /(^|\.)github\.io$/.test(location.hostname) || /^(localhost|127\.0\.0\.1)$/.test(location.hostname) || location.protocol === "file:";
+  function make(tag, cls, text){ var n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
+
+  function mkNF(o){ try { return new Intl.NumberFormat("sr-Latn-RS", o); } catch(e){ return new Intl.NumberFormat("de-DE", o); } }
+  function mkDF(o){ try { return new Intl.DateTimeFormat("sr-Latn-RS", o); } catch(e){ return new Intl.DateTimeFormat("de-DE", o); } }
+  var f0 = mkNF({maximumFractionDigits:0});
+  var f1 = mkNF({minimumFractionDigits:1, maximumFractionDigits:1});
+  var f2 = mkNF({minimumFractionDigits:2, maximumFractionDigits:2});
+  var dfLong = mkDF({day:"numeric", month:"short", year:"numeric"});
+  var dfShort = mkDF({day:"numeric", month:"numeric"});
+  var dfMonth = mkDF({month:"short"});
+  var dfMonthYear = mkDF({month:"long", year:"numeric"});
+  function fmtPrice(p){ return Number.isInteger(p) ? f0.format(p) : f2.format(p); }
+  function din(n){ return f0.format(Math.round(n)) + " din"; }
+
+  function pad(n){ return String(n).padStart(2, "0"); }
+  function iso(d){ return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()); }
+  function parseISO(s){ var p = String(s).split("-").map(Number); return new Date(p[0], (p[1]||1)-1, p[2]||1); }
+  function daysBetween(a, b){ return Math.round((parseISO(b) - parseISO(a)) / 86400000); }
+  function round2(n){ return Math.round(n*100)/100; }
+  function litersText(n){ return String(round2(n)).replace(".", ","); }
+  function newId(p){ return (p || "t") + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+  function parseNum(raw){
+    var s = String(raw || "").trim().replace(/[\s ]/g, "");
+    if (!s) return NaN;
+    if (s.indexOf(",") >= 0 && s.indexOf(".") >= 0) s = s.replace(/\./g, "").replace(",", ".");
+    else if (s.indexOf(",") >= 0) s = s.replace(",", ".");
+    else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, "");
+    if (!/^\d+(\.\d+)?$/.test(s)) return NaN;
+    return parseFloat(s);
+  }
+  function parseKm(raw){
+    var s = String(raw || "").trim();
+    if (!/^[\d\s .,]+$/.test(s)) return NaN;
+    s = s.replace(/[\s .,]/g, "");
+    return s ? parseInt(s, 10) : NaN;
+  }
+
+  /* ---------- fuels, pumps ---------- */
+  var FUEL_ORDER = ["eurodizel", "dizel_p", "bmb95", "bmb_p95", "bmb_p100"];
+  var BASE_NAMES = {eurodizel:"Evrodizel", bmb95:"BMB 95"};
+  var FALLBACK = {dizel_p:"eurodizel", bmb_p95:"bmb95", bmb_p100:"bmb95"};
+  var DIESEL = {eurodizel:true, dizel_p:true};
+  var BRANDS = {nis:"NIS Petrol", mol:"MOL", omv:"OMV", eko:"EKO", avia:"AVIA", europetrol:"Euro Petrol"};
+  var LEVELS = {"0.25":"¼", "0.5":"½", "0.75":"¾", "1":"puno"};
+  var KM_KRUSEVAC_BEOGRAD = 195;
+  function isFuel(id){ return FUEL_ORDER.indexOf(id) >= 0; }
+  function isPremium(id){ return isFuel(id) && !BASE_NAMES[id]; }
+
+  /* Built-in copy of the latest prices, so people who are not signed in (e.g. in the Android app) still see them.
+     The weekly scheduled check replaces everything between the CENE markers with the current price document. */
+  var BUILTIN_PRICES = /*CENE-START*/{"eurodizel":236,"bmb95":207,"vaziOd":"2026-10-23","vaziDo":"2026-10-30","provereno":"2026-10-28","prethodno":{"eurodizel":236,"bmb95":207},"pumpe":{"nis":{"naziv":"NIS Petrol","goriva":{"dizel_p":{"naziv":"G-Drive Diesel","cena":251},"bmb_p100":{"naziv":"G-Drive 100","cena":230}}},"mol":{"naziv":"MOL","goriva":{"dizel_p":{"naziv":"Dizel Plus","cena":252.9},"bmb_p95":{"naziv":"BMB 95+","cena":238.9}}},"omv":{"naziv":"OMV","goriva":{"dizel_p":{"naziv":"MaxxMotion Diesel","cena":253.9},"bmb_p95":{"naziv":"MaxxMotion 95","cena":227.9},"bmb_p100":{"naziv":"MaxxMotion 100","cena":238.9}}},"eko":{"naziv":"EKO","goriva":{"dizel_p":{"naziv":"Gold Evro Dizel","cena":252.9},"bmb_p100":{"naziv":"BMB 100","cena":235.9}}},"avia":{"naziv":"AVIA","goriva":{"dizel_p":{"naziv":"Dizel Gold","cena":250.9},"bmb_p100":{"naziv":"BMB 100","cena":229.9}}},"europetrol":{"naziv":"Euro Petrol","goriva":{"dizel_p":{"naziv":"Expert Dizel","cena":250.9},"bmb_p95":{"naziv":"Expert BMB","cena":229.9}}}}}/*CENE-END*/;
+  var prices = BUILTIN_PRICES;
+
+  function fuelInfo(id, pumpa){
+    if (!prices) return null;
+    var b = pumpa && prices.pumpe ? prices.pumpe[pumpa] : null, g = b && b.goriva ? b.goriva[id] : null;
+    if (BASE_NAMES[id]){
+      var cena = g && Number(g.cena) > 0 ? Number(g.cena) : Number(prices[id]);
+      var pre = g && Number(g.pre) > 0 ? Number(g.pre) : (prices.prethodno ? Number(prices.prethodno[id]) : NaN);
+      return cena > 0 ? {naziv:BASE_NAMES[id], cena:cena, pre:pre} : null;
+    }
+    return g && Number(g.cena) > 0 ? {naziv:String(g.naziv || "Premium").slice(0, 40), cena:Number(g.cena), pre:Number(g.pre)} : null;
+  }
+
+  /* ---------- settings & cars ---------- */
+  var storageOk = (function(){ try { localStorage.setItem("dg-test", "1"); var ok = localStorage.getItem("dg-test") === "1"; localStorage.removeItem("dg-test"); return ok; } catch(e){ return false; } })();
+  var LS_KEY = "dnevnik-goriva-v1", SET_KEY = "dnevnik-goriva-auto";
+
+  function newCar(name){ return {id:newId("a"), ime:name, rezervoar:null, vrsta:"eurodizel", pumpa:null, maliInterval:null, maliKm:null, velikiInterval:null, velikiKm:null}; }
+  function defaultSettings(){ var c = newCar("Moj auto"); c.id = "a1"; return {auta:[c], aktivno:"a1", tema:"sistem", popusti:[], saveti:{}}; }
+  var settings = defaultSettings();
+
+  function pos(v){ return Number(v) > 0 ? Number(v) : null; }
+  function cleanCar(c){
+    if (!c || typeof c.id !== "string") return null;
+    return {
+      id: c.id.slice(0, 40), ime: String(c.ime || "Auto").slice(0, 40),
+      rezervoar: Number(c.rezervoar) > 0 ? Number(c.rezervoar) : null,
+      vrsta: isFuel(c.vrsta) ? c.vrsta : "eurodizel",
+      pumpa: c.pumpa && BRANDS[c.pumpa] ? c.pumpa : null,
+      /* earlier versions had a single service (servisInterval / servisKm): it becomes the small service */
+      maliInterval: pos(c.maliInterval) || pos(c.servisInterval),
+      maliKm: pos(c.maliKm) || pos(c.servisKm),
+      velikiInterval: pos(c.velikiInterval),
+      velikiKm: pos(c.velikiKm)
+    };
+  }
+  /* A discount has its own amount for premium and for regular fuel (0 = does not apply).
+     Earlier versions had one amount plus "only premium / all fuels"; those are converted here. */
+  function cleanDisc(p){
+    if (!p || !BRANDS[p.pumpa] || ["litar","procenat","bodovi","kuponi"].indexOf(p.tip) < 0) return null;
+    var prem, ob;
+    if (p.premium != null || p.obicno != null){ prem = Number(p.premium); ob = Number(p.obicno); }
+    else { var old = Number(p.iznos); prem = old; ob = p.samoPremium === false ? old : 0; }
+    prem = prem > 0 ? prem : 0; ob = ob > 0 ? ob : 0;
+    if (p.tip === "kuponi"){ prem = 0; ob = 0; }
+    return {id:String(p.id || newId("p")).slice(0, 40), pumpa:p.pumpa, tip:p.tip, premium:prem, obicno:ob,
+            limit:Number(p.limit) > 0 ? Number(p.limit) : null, nivo:String(p.nivo || "").slice(0, 30),
+            kuponSabira:p.kuponSabira === true};   // false: a coupon replaces this discount for that fill-up
+  }
+  /* Accepts the current shape and the older single-car shape ({vrsta, rezervoar, pumpa}). */
+  function applySettings(o){
+    if (!o) return;
+    var s = defaultSettings();
+    if (Array.isArray(o.auta) && o.auta.length){
+      s.auta = o.auta.map(cleanCar).filter(Boolean);
+      if (!s.auta.length) s = defaultSettings();
+    } else {
+      var c = s.auta[0];
+      if (isFuel(o.vrsta)) c.vrsta = o.vrsta;
+      if (Number(o.rezervoar) > 0) c.rezervoar = Number(o.rezervoar);
+      if (o.pumpa && BRANDS[o.pumpa]) c.pumpa = o.pumpa;
+    }
+    s.aktivno = o.aktivno === "sve" || s.auta.some(function(c){ return c.id === o.aktivno; }) ? o.aktivno : s.auta[0].id;
+    s.tema = ["sistem","svetla","tamna"].indexOf(o.tema) >= 0 ? o.tema : "sistem";
+    s.popusti = Array.isArray(o.popusti) ? o.popusti.map(cleanDisc).filter(Boolean) : [];
+    s.saveti = o.saveti && typeof o.saveti === "object" ? {popust: !!o.saveti.popust} : {};
+    settings = s;
+  }
+  try { var lsSet = JSON.parse(localStorage.getItem(SET_KEY) || "null"); if (lsSet) applySettings(lsSet); } catch(e){}
+
+  function car(id){ for (var i = 0; i < settings.auta.length; i++) if (settings.auta[i].id === id) return settings.auta[i]; return null; }
+  function activeCar(){ return settings.aktivno === "sve" ? null : car(settings.aktivno) || settings.auta[0]; }
+  function carOf(e){ return car(e.auto) ? e.auto : settings.auta[0].id; }
+
+  /* ---------- discounts ---------- */
+  function discAmount(p, fuelId){ return isPremium(fuelId) ? p.premium : p.obicno; }
+  /* The person's discount at this pump for this fuel, with "iznos" set to the amount that applies to it. */
+  function discountFor(pumpa, fuelId){
+    if (!pumpa) return null;
+    for (var i = 0; i < settings.popusti.length; i++){
+      var p = settings.popusti[i], a = discAmount(p, fuelId);
+      if (p.pumpa === pumpa && p.tip !== "kuponi" && a > 0) return Object.assign({}, p, {iznos:a});
+    }
+    return null;
+  }
+  function discountLitersLeft(p, datum){
+    if (!p || !p.limit) return Infinity;
+    var ym = String(datum || iso(new Date())).slice(0, 7), used = 0;
+    entries.forEach(function(e){ if (e.popustId === p.id && e.datum.slice(0, 7) === ym) used += e.popustLitara || 0; });
+    return Math.max(0, p.limit - used);
+  }
+  function perLiterCut(p, price){
+    if (!p) return 0;
+    if (p.tip === "litar") return Math.min(p.iznos, price);
+    if (p.tip === "procenat") return price*Math.min(p.iznos, 100)/100;
+    return 0;
+  }
+  /* What a fill-up of l liters costs, and what it saves, given the pump price, the person's discount and an optional coupon. */
+  function priceModel(l, price, disc, coupon, datum){
+    var left = discountLitersLeft(disc, datum);
+    var dl = Math.min(l, left), cut = perLiterCut(disc, price);
+    var save = dl*cut + l*Math.min(coupon || 0, price);
+    var bodovi = disc && disc.tip === "bodovi" ? Math.min(l, left)*disc.iznos : 0;
+    return {cost: Math.max(0, l*price - save), save: save, bodovi: bodovi, discLiters: (cut > 0 || bodovi > 0) ? dl : 0};
+  }
+  function litersForCost(c, price, disc, coupon, datum){
+    var lo = 0, hi = 1000;
+    for (var i = 0; i < 60; i++){ var mid = (lo + hi)/2; if (priceModel(mid, price, disc, coupon, datum).cost < c) lo = mid; else hi = mid; }
+    return (lo + hi)/2;
+  }
+  function amountText(tip, v){
+    return tip === "litar" ? fmtPrice(v) + " din manje po litru"
+         : tip === "procenat" ? fmtPrice(v) + "% manje"
+         : "bodovi vredni oko " + fmtPrice(v) + " din po litru";
+  }
+  function discText(p){
+    var lim = p.limit ? ", najviše " + f0.format(p.limit) + " l mesečno" : "";
+    if (p.tip === "kuponi") return "kuponi i povremene akcije";
+    var k = p.kuponSabira ? ". Kupon se sabira sa popustom" : "";
+    if (p.premium > 0 && p.obicno > 0 && p.premium !== p.obicno)
+      return "Premium: " + amountText(p.tip, p.premium) + ". Obično gorivo: " + amountText(p.tip, p.obicno) + lim + k;
+    if (p.premium > 0 && p.obicno > 0) return amountText(p.tip, p.premium) + ", na sva goriva" + lim + k;
+    if (p.obicno > 0) return amountText(p.tip, p.obicno) + ", samo na obična goriva" + lim + k;
+    return amountText(p.tip, p.premium) + ", samo na premium goriva" + lim + k;
+  }
+
+  /* ---------- entries ---------- */
+  var entries = [];
+  function norm(o, id){
+    if (!o) return null;
+    var e = {id: id || o.id, datum: String(o.datum || ""), t: Number(o.t) || 0, litara: Number(o.litara), cena: Number(o.cena)};
+    if (o.ocitavanje === true){ e.ocitavanje = true; e.litara = 0; e.cena = 0; }
+    if (!e.id || !/^\d{4}-\d{2}-\d{2}$/.test(e.datum) || !(e.litara > 0 || e.ocitavanje) || !(e.cena >= 0)) return null;
+    var km = Number(o.km); e.km = km > 0 ? km : null;
+    if (e.ocitavanje && !e.km) return null;
+    var n = Number(o.nivo); e.nivo = n > 0 && n <= 1 ? n : (o.pun === true ? 1 : null);
+    if (isFuel(o.vrsta)) e.vrsta = o.vrsta;
+    if (o.pumpa && BRANDS[o.pumpa]) e.pumpa = o.pumpa;
+    if (typeof o.gorivo === "string" && o.gorivo) e.gorivo = o.gorivo.slice(0, 40);
+    if (typeof o.auto === "string" && o.auto) e.auto = o.auto.slice(0, 40);
+    if (Number(o.ustedjeno) > 0) e.ustedjeno = Number(o.ustedjeno);
+    if (Number(o.bodovi) > 0) e.bodovi = Number(o.bodovi);
+    if (typeof o.popustId === "string") e.popustId = o.popustId;
+    if (Number(o.popustLitara) > 0) e.popustLitara = Number(o.popustLitara);
+    return e;
+  }
+  function byTime(a, b){
+    if (a.datum !== b.datum) return a.datum < b.datum ? -1 : 1;
+    return (a.t - b.t) || ((a.km || 0) - (b.km || 0));
+  }
+
+  /* Example log, shown only while the person has no entries of their own. Never saved. */
+  var SAMPLE_CAP = 50;
+  var SAMPLE_CAR = {id:"primer", ime:"Primer", rezervoar:SAMPLE_CAP, vrsta:"eurodizel", pumpa:null};
+  var SAMPLE_TRIPS = [[95,0,30,227,1],[87,410,22,229,0],[79,385,30,231,1],[70,450,24,236,0],[62,395,28,236,1],[54,430,30,236,0],[46,380,20,236,1],[38,470,33,236,0],[29,405,26,236,1],[20,445,27,236,0],[11,400,25,236,1],[3,425,28,236,1]];
+  var SAMPLE = (function(){
+    var t = new Date(), km = 184200, inTank = 15;
+    return SAMPLE_TRIPS.map(function(r, i){
+      km += r[1];
+      inTank = Math.max(3, inTank - r[1]*6.6/100);
+      inTank = Math.min(SAMPLE_CAP, inTank + r[2]);
+      var nivo = Math.min(1, Math.max(0.25, Math.round(inTank/SAMPLE_CAP*4)/4));
+      var d = new Date(t.getFullYear(), t.getMonth(), t.getDate() - r[0]);
+      return {id:"primer" + i, auto:"primer", datum:iso(d), t:i, litara:r[2], cena:Math.round(r[2]*r[3]), nivo:nivo, km:r[4] ? km : null, vrsta:"eurodizel"};
+    });
+  })();
+
+  /* Fuel used between two points = fuel in tank after the first + everything added since − fuel in tank after the last.
+     Gauge readings only enter at the two ends, so their error does not pile up over longer periods. */
+  function compute(list, cap){
+    var s = list.slice().sort(byTime);
+    var after = s.map(function(e){ return cap && e.nivo > 0 ? e.nivo*cap : null; });
+    var kmIdx = [], lastKm = -1;
+    s.forEach(function(e, i){ if (e.km > 0 && e.km > lastKm){ kmIdx.push(i); lastKm = e.km; } });
+    function between(a, b){
+      if (after[a] == null || after[b] == null) return null;
+      var add = 0, cost = 0;
+      for (var i = a + 1; i <= b; i++){ add += s[i].litara; cost += s[i].cena; }
+      var used = after[a] + add - after[b];
+      return used > 0 ? {used:used, price:add > 0 ? cost/add : null} : null;
+    }
+    var avg = null, perKm = null, dist = 0;
+    if (kmIdx.length >= 2){
+      var a = kmIdx[0], b = kmIdx[kmIdx.length-1];
+      dist = s[b].km - s[a].km;
+      var u = between(a, b);
+      if (u && dist >= 100){ avg = u.used/dist*100; perKm = u.price ? u.used*u.price/dist : null; }
+    }
+    var segs = [], consById = {};
+    if (kmIdx.length >= 2){
+      var start = kmIdx[0];
+      for (var j = 1; j < kmIdx.length; j++){
+        var k = kmIdx[j], d = s[k].km - s[start].km;
+        if (d >= 500){
+          var v = between(start, k);
+          if (v){ var seg = {id:s[k].id, datum:s[k].datum, km:d, cons:v.used/d*100}; segs.push(seg); consById[seg.id] = seg.cons; }
+          start = k;
+        }
+      }
+    }
+    var fills = s.filter(function(e){ return !e.ocitavanje; });
+    var ym = iso(new Date()).slice(0, 7);
+    var thisMonth = fills.filter(function(e){ return e.datum.slice(0,7) === ym; });
+    return {
+      sorted:s, fills:fills, segs:segs, consById:consById, avg:avg, perKm:perKm, dist:dist, kmCount:kmIdx.length,
+      lastKm: kmIdx.length ? s[kmIdx[kmIdx.length-1]].km : null,
+      last: segs.length ? segs[segs.length-1].cons : null,
+      month: thisMonth.reduce(function(t, e){ return t + e.cena; }, 0),
+      monthL: thisMonth.reduce(function(t, e){ return t + e.litara; }, 0),
+      count: fills.length
+    };
+  }
+
+  /* The data the screens work from: the person's own entries, or the example log while there are none. */
+  function dataset(){
+    var real = entries.length > 0;
+    if (!real) return {real:false, cars:[SAMPLE_CAR], byCar:{primer:SAMPLE}};
+    var byCar = {};
+    settings.auta.forEach(function(c){ byCar[c.id] = []; });
+    entries.forEach(function(e){ byCar[carOf(e)].push(e); });
+    var cars = settings.aktivno === "sve" ? settings.auta.slice() : [activeCar()];
+    return {real:true, cars:cars, byCar:byCar};
+  }
+
+  /* ---------- SVG charts ---------- */
+  var NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, text){
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function drawCons(svg, segs, avg){
+    svg.replaceChildren();
+    var W = 320, H = 170, L = 36, R = 14, T = 18, B = 24;
+    var pts = segs.slice(-10);
+    if (!pts.length){ svg.append(el("text", {x:W/2, y:H/2, "text-anchor":"middle", "class":"c-txt"}, "Pojavljuje se posle 500 km između dva upisa kilometraže")); return; }
+    var vals = pts.map(function(p){ return p.cons; });
+    if (avg != null) vals.push(avg);
+    var lo = Math.max(0, Math.floor((Math.min.apply(null, vals) - 0.4) * 2) / 2);
+    var hi = Math.ceil((Math.max.apply(null, vals) + 0.4) * 2) / 2;
+    if (hi <= lo) hi = lo + 1;
+    var iw = W - L - R, ih = H - T - B;
+    function x(i){ return pts.length === 1 ? L + iw/2 : L + iw*i/(pts.length-1); }
+    function y(v){ return T + ih - (v - lo)/(hi - lo)*ih; }
+    [lo, (lo+hi)/2, hi].forEach(function(t){
+      var yy = y(t);
+      svg.append(el("line", {x1:L, x2:W-R, y1:yy, y2:yy, "class":"c-grid"}));
+      svg.append(el("text", {x:L-6, y:yy+3.5, "text-anchor":"end", "class":"c-txt"}, f1.format(t)));
+    });
+    if (pts.length > 1){
+      var d = "";
+      pts.forEach(function(p, i){ d += (i ? "L" : "M") + x(i).toFixed(1) + " " + y(p.cons).toFixed(1); });
+      svg.append(el("path", {d:d + "L" + x(pts.length-1).toFixed(1) + " " + (T+ih) + "L" + x(0).toFixed(1) + " " + (T+ih) + "Z", "class":"c-area"}));
+      svg.append(el("path", {d:d, "class":"c-line"}));
+    }
+    if (avg != null){ var ay = y(avg); svg.append(el("line", {x1:L, x2:W-R, y1:ay, y2:ay, "class":"c-avg"})); }
+    pts.forEach(function(p, i){ var last = i === pts.length - 1; svg.append(el("circle", {cx:x(i), cy:y(p.cons), r:last ? 4.5 : 3, "class":last ? "c-dot last" : "c-dot"})); });
+    var li = pts.length - 1, lx = x(li), ly = y(pts[li].cons);
+    svg.append(el("text", {x:pts.length === 1 ? lx : lx - 8, y:ly - 10, "text-anchor":pts.length === 1 ? "middle" : "end", "class":"c-val"}, f1.format(pts[li].cons)));
+    function fmt(s){ return dfShort.format(parseISO(s)); }
+    svg.append(el("text", {x:x(0), y:H-6, "text-anchor":pts.length === 1 ? "middle" : "start", "class":"c-txt"}, fmt(pts[0].datum)));
+    if (pts.length > 1) svg.append(el("text", {x:x(li), y:H-6, "text-anchor":"end", "class":"c-txt"}, fmt(pts[li].datum)));
+  }
+  function drawMonths(svg, list){
+    svg.replaceChildren();
+    var W = 320, H = 170, L = 8, R = 8, T = 22, B = 24;
+    var now = new Date(), months = [];
+    for (var k = 5; k >= 0; k--){ var d = new Date(now.getFullYear(), now.getMonth() - k, 1); months.push({key:iso(d).slice(0,7), label:dfMonth.format(d).replace(".", ""), sum:0}); }
+    list.forEach(function(e){ for (var i = 0; i < months.length; i++){ if (months[i].key === e.datum.slice(0,7)){ months[i].sum += e.cena; break; } } });
+    var max = Math.max.apply(null, months.map(function(m){ return m.sum; }));
+    var iw = W - L - R, ih = H - T - B, slot = iw/months.length, bw = Math.min(30, slot*0.56);
+    svg.append(el("line", {x1:L, x2:W-R, y1:T+ih, y2:T+ih, "class":"c-base"}));
+    if (max <= 0) svg.append(el("text", {x:W/2, y:T+ih/2, "text-anchor":"middle", "class":"c-txt"}, "Nema troškova u poslednjih 6 meseci"));
+    months.forEach(function(m, i){
+      var cx = L + slot*i + slot/2, cur = i === months.length - 1;
+      if (m.sum > 0){
+        var h = Math.max(2, m.sum/max*ih);
+        svg.append(el("rect", {x:cx-bw/2, y:T+ih-h, width:bw, height:h, rx:2, "class":cur ? "c-bar" : "c-bar soft"}));
+        svg.append(el("text", {x:cx, y:T+ih-h-6, "text-anchor":"middle", "class":"c-val"}, f0.format(Math.round(m.sum))));
+      }
+      svg.append(el("text", {x:cx, y:H-6, "text-anchor":"middle", "class":cur ? "c-txt cur" : "c-txt"}, m.label));
+    });
+  }
+
+  /* ---------- history list ---------- */
+  function plural(n){ return (n % 10 === 1 && n % 100 !== 11) ? "sipanje" : "sipanja"; }
+  function renderList(rows, consById, avgById, real, showCar){
+    var ul = $("list");
+    ul.replaceChildren();
+    if (!rows.length){ ul.append(make("li", "empty-list", "Još nema sipanja za ovaj auto.")); return; }
+    rows.forEach(function(e){
+      var li = make("li", "row");
+      var main = make("div", "r-main");
+      var dt = make("span", null, dfLong.format(parseISO(e.datum)));
+      var cost = e.ocitavanje ? make("span", "r-read", "Očitavanje") : make("span", "r-cost", din(e.cena));
+      main.append(dt, cost);
+      var meta = make("div", "r-meta");
+      if (showCar){ var c = car(carOf(e)); meta.append(make("span", "chip car", c ? c.ime : "Auto")); }
+      if (!e.ocitavanje) meta.append(make("span", null, f1.format(e.litara) + " l"));
+      if (e.nivo != null) meta.append(make("span", null, "kazaljka " + (LEVELS[String(e.nivo)] || Math.round(e.nivo*100) + "%")));
+      if (e.km) meta.append(make("span", null, f0.format(e.km) + " km"));
+      if (e.pumpa || (e.gorivo && !BASE_NAMES[e.vrsta])) meta.append(make("span", null, [e.pumpa ? BRANDS[e.pumpa] : "", e.gorivo || ""].filter(Boolean).join(" · ")));
+      if (e.ustedjeno) meta.append(make("span", "save", "ušteda " + din(e.ustedjeno)));
+      if (consById[e.id] != null){
+        var v = consById[e.id], a = avgById[e.id], chip = make("span", "chip", f1.format(v) + " l/100");
+        if (a != null) chip.className = "chip" + (v > a*1.05 ? " hi" : v < a*0.95 ? " lo" : "");
+        chip.title = "Potrošnja od prethodnog upisa kilometraže";
+        meta.append(chip);
+      }
+      li.append(main, meta);
+      if (real){
+        var btn = make("button", "del", "Obriši");
+        btn.type = "button";
+        btn.setAttribute("aria-label", "Obriši upis od " + dfLong.format(parseISO(e.datum)));
+        armButton(btn, "Sigurno?", function(){ btn.disabled = true; removeEntry(e.id); });
+        li.append(btn);
+      }
+      ul.append(li);
+    });
+  }
+
+  /* Two-tap confirmation for anything that deletes. */
+  function armButton(btn, armedText, action){
+    var original = btn.textContent;
+    btn.addEventListener("click", function(){
+      if (btn.hasAttribute("data-armed")){ clearTimeout(btn._t); btn.removeAttribute("data-armed"); btn.textContent = original; action(); }
+      else {
+        btn.setAttribute("data-armed", ""); btn.textContent = armedText;
+        btn._t = setTimeout(function(){ btn.removeAttribute("data-armed"); btn.textContent = original; }, 3500);
+      }
+    });
+  }
+
+  /* ---------- render: home ---------- */
+  var lastAvg = null;
+  function render(){
+    applyTheme();
+    renderCarSwitch();
+    var ds = dataset(), all = settings.aktivno === "sve" && ds.real;
+    $("app").classList.toggle("is-sample", !ds.real);
+    $("banner").hidden = ds.real;
+    document.querySelectorAll(".sample-only").forEach(function(t){ t.hidden = ds.real; });
+
+    var per = ds.cars.map(function(c){ return {car:c, c:compute(ds.byCar[c.id] || [], c.rezervoar)}; });
+    var rows = [], consById = {}, avgById = {};
+    per.forEach(function(p){
+      rows = rows.concat(p.c.sorted);
+      Object.keys(p.c.consById).forEach(function(k){ consById[k] = p.c.consById[k]; avgById[k] = p.c.avg; });
+    });
+    rows.sort(byTime).reverse();
+    var month = 0, monthL = 0, dist = 0, cnt = 0;
+    per.forEach(function(p){ month += p.c.month; monthL += p.c.monthL; dist += p.c.dist; cnt += p.c.count; });
+
+    var note = "";
+    if (all){
+      $("bigLabel").textContent = "Gorivo ovog meseca, sve zajedno";
+      $("bigVal").textContent = f0.format(Math.round(month)); $("bigUnit").textContent = "din";
+      $("side1Label").textContent = "Litara ovog meseca"; $("side1").textContent = f1.format(monthL) + " l";
+      $("side2Label").textContent = "Automobila"; $("side2").textContent = String(settings.auta.length);
+      lastAvg = null;
+    } else {
+      var one = per[0].c, cc = per[0].car;
+      $("bigLabel").textContent = "Prosečna potrošnja";
+      $("bigVal").textContent = one.avg != null ? f1.format(one.avg) : "–"; $("bigUnit").textContent = "l/100 km";
+      $("side1Label").textContent = "Poslednji period"; $("side1").textContent = one.last != null ? f1.format(one.last) + " l/100 km" : "–";
+      $("side2Label").textContent = "Cena po km"; $("side2").textContent = one.perKm != null ? f1.format(one.perKm) + " din" : "–";
+      lastAvg = ds.real ? one.avg : null;
+      if (ds.real){
+        var mine = ds.byCar[cc.id] || [];
+        if (!mine.length) note = "Još nema sipanja za ovaj auto. Upiši prvo sipanje ispod.";
+        else if (!cc.rezervoar) note = "Upiši veličinu rezervoara u Podešavanjima, u Garaži, da bi se računala potrošnja.";
+        else if (one.kmCount === 0) note = "Upiši kilometražu sa sata uz neko sipanje, pa još jednom za nekoliko dana, i dobićeš prvu potrošnju.";
+        else if (one.avg == null) note = "Upiši kilometražu još jednom kad pređeš bar 100 km i dobićeš prvu potrošnju.";
+        else if (one.dist < 1000) note = "Prosek je još grub i biće tačniji kako budeš upisivao.";
+      }
+      renderService(cc, one.lastKm, ds.real);
+    }
+    if (all){ $("servisNote").hidden = true; $("servisCard").hidden = true; }
+    $("pumpNote").textContent = note; $("pumpNote").hidden = !note;
+    $("capNote").hidden = !(ds.real && !all && !activeCar().rezervoar);
+
+    $("sMonth").textContent = f0.format(Math.round(month));
+    $("sMonthL").textContent = f1.format(monthL);
+    $("sDist").textContent = dist > 0 ? f0.format(dist) : "–";
+    $("sCount").textContent = String(cnt);
+
+    $("pricesCard").hidden = all; $("formCard").hidden = all; $("pickCarNote").hidden = !all;
+    $("consChartCard").hidden = all;
+    if (!all) drawCons($("chCons"), per[0].c.segs, per[0].c.avg);
+    drawMonths($("chMonth"), rows.filter(function(e){ return !e.ocitavanje; }));
+    renderList(rows, consById, avgById, ds.real, all);
+    $("count").textContent = ds.real ? cnt + " " + plural(cnt) : "primer";
+    var ac = activeCar();
+    $("formCar").textContent = ac ? ac.ime : "";
+
+    var kms = ac ? entries.filter(function(e){ return e.km && carOf(e) === ac.id; }).map(function(e){ return e.km; }) : [];
+    $("fKm").dataset.ph = kms.length ? "poslednje: " + f0.format(Math.max.apply(null, kms)) : "sa sata";
+    if (!$("fRead").checked) $("fKm").placeholder = $("fKm").dataset.ph;
+
+    renderMode();
+    renderAuto();
+    if (!$("view-stats").hidden) renderStats();
+    if (!$("view-settings").hidden) renderSettings();
+  }
+
+  function renderMode(){
+    var m = $("mode");
+    if (mode === "db"){ m.dataset.state = loaded ? "db" : "loading"; m.textContent = loaded ? "Čuva se na tvom nalogu" : "Učitavam tvoja sipanja…"; }
+    else if (mode === "local"){ m.dataset.state = storageOk ? "local" : "warn"; m.textContent = storageOk ? "Čuva se u ovom telefonu" : "Pažnja: ovaj pregledač ne čuva podatke"; }
+    else { m.dataset.state = "loading"; m.textContent = "Učitavam…"; }
+  }
+
+  function renderCarSwitch(){
+    var sel = $("carSel"), want = settings.auta.map(function(c){ return c.id + ":" + c.ime; }).join("|") + (settings.auta.length > 1 ? "|sve" : "");
+    if (sel.dataset.key !== want){
+      sel.dataset.key = want;
+      sel.replaceChildren();
+      settings.auta.forEach(function(c){ var o = make("option", null, c.ime); o.value = c.id; sel.append(o); });
+      if (settings.auta.length > 1){ var o = make("option", null, "Sve zajedno"); o.value = "sve"; sel.append(o); }
+    }
+    sel.value = settings.aktivno === "sve" && settings.auta.length < 2 ? settings.auta[0].id : settings.aktivno;
+  }
+
+  /* Small and big service, each with its own interval and the odometer reading when it was last done. */
+  var SERVICES = [["mali", "Mali servis", "ulje, filteri"], ["veliki", "Veliki servis", "zupčasti kaiš, pumpa za vodu…"]];
+  function serviceState(c, kind, lastKm){
+    var iv = c[kind + "Interval"], done = c[kind + "Km"];
+    if (!iv || !done) return null;
+    var due = done + iv, left = lastKm ? due - lastKm : null;
+    return {interval:iv, done:done, due:due, left:left, driven:lastKm ? Math.max(0, lastKm - done) : null};
+  }
+  function markServiceDone(c, kind, lastKm, label){
+    c[kind + "Km"] = lastKm; saveSettings(); render();
+    setMsg("Zapisano: " + label.toLowerCase() + " na " + f0.format(lastKm) + " km.", "ok");
+  }
+  function renderService(c, lastKm, real){
+    var box = $("servisNote"), card = $("servisCard"), rows = $("servisRows");
+    var show = real && c && SERVICES.some(function(s){ return c[s[0] + "Interval"]; });
+    card.hidden = !show; box.hidden = true;
+    if (!show){ rows.replaceChildren(); return; }
+    rows.replaceChildren();
+    var urgent = [];
+    SERVICES.forEach(function(s){
+      var kind = s[0], label = s[1];
+      if (!c[kind + "Interval"]) return;
+      var st = serviceState(c, kind, lastKm), item = make("div", "srv"), head = make("div", "srv-head");
+      head.append(make("strong", null, label), make("span", "srv-every", "na svakih " + f0.format(c[kind + "Interval"]) + " km"));
+      item.append(head);
+      if (!st){ item.append(make("p", "how", "Upiši u Garaži na kojoj kilometraži je poslednji put rađen.")); rows.append(item); return; }
+      var bar = make("div", "srv-bar"), fill = make("span");
+      var ratio = st.driven != null ? Math.min(1, st.driven/st.interval) : 0;
+      fill.style.width = Math.round(ratio*100) + "%";
+      fill.className = st.left != null && st.left < 0 ? "bad" : st.left != null && st.left <= 1000 ? "warn" : "";
+      bar.append(fill); item.append(bar);
+      var txt;
+      if (st.left == null) txt = "Sledeći na " + f0.format(st.due) + " km. Upiši kilometražu da vidiš koliko je ostalo.";
+      else if (st.left < 0) txt = "Kasni " + f0.format(-st.left) + " km (bio je na " + f0.format(st.due) + " km).";
+      else txt = "Još " + f0.format(st.left) + " km, na " + f0.format(st.due) + " km. Od poslednjeg pređeno " + f0.format(st.driven) + " km.";
+      var line = make("div", "srv-line");
+      line.append(make("span", st.left != null && st.left < 0 ? "srv-txt bad" : "srv-txt", txt));
+      if (lastKm){
+        var b = make("button", "btn small ghost", "Urađen"); b.type = "button";
+        b.setAttribute("aria-label", label + " urađen na " + f0.format(lastKm) + " km");
+        b.addEventListener("click", function(){ markServiceDone(c, kind, lastKm, label); });
+        line.append(b);
+      }
+      item.append(line); rows.append(item);
+      if (st.left != null && st.left <= 1000) urgent.push({label:label, left:st.left});
+    });
+    if (urgent.length){
+      box.hidden = false;
+      var worst = urgent.sort(function(a, b){ return a.left - b.left; })[0];
+      box.className = "notice " + (worst.left < 0 ? "bad" : "warn");
+      box.replaceChildren(make("span", null, worst.left < 0 ? worst.label + " kasni " + f0.format(-worst.left) + " km (" + c.ime + ")." : worst.label + " za " + f0.format(worst.left) + " km (" + c.ime + ")."));
+    }
+  }
+
+  /* ---------- prices card ---------- */
+  var fuelKey = "";
+  function curFuel(){
+    var c = activeCar(); if (!c) return "eurodizel";
+    if (BASE_NAMES[c.vrsta]) return c.vrsta;
+    return fuelInfo(c.vrsta, c.pumpa) ? c.vrsta : FALLBACK[c.vrsta];
+  }
+  function fuelButton(id){
+    var b = make("button", "fuel");
+    b.type = "button"; b.dataset.fuel = id; b.setAttribute("role", "radio");
+    b.append(make("span", "f-name"), make("span", "f-old"), make("span", "f-price"), make("span", "f-chg"), make("span", "f-disc"));
+    b.addEventListener("click", function(){ chooseFuel(id); });
+    return b;
+  }
+  function renderAuto(){
+    var c = activeCar(); if (!c) return;
+    if (document.activeElement !== $("fPump")) $("fPump").value = c.pumpa || "";
+    var ids = FUEL_ORDER.filter(function(id){ return BASE_NAMES[id] || fuelInfo(id, c.pumpa); });
+    var key = ids.join(",");
+    if (key !== fuelKey){
+      fuelKey = key;
+      $("colDiesel").replaceChildren.apply($("colDiesel"), ids.filter(function(id){ return DIESEL[id]; }).map(fuelButton));
+      $("colPetrol").replaceChildren.apply($("colPetrol"), ids.filter(function(id){ return !DIESEL[id]; }).map(fuelButton));
+    }
+    var cur = curFuel(), noDisc = $("fNoDisc").checked;   // "Bez popusta ovaj put" shows the regular prices
+    var coupon = $("fRead").checked ? 0 : couponValue();   // a coupon typed in the form lowers the prices shown here too
+    /* Discount that applies to this fuel right now: none when switched off, none when a coupon replaces it. */
+    function shownDisc(id){
+      var d = noDisc ? null : discountFor(c.pumpa, id);
+      return d && coupon > 0 && !d.kuponSabira ? null : d;
+    }
+    function shownCut(d, price){ var cd = perLiterCut(d, price); return cd + Math.min(coupon, price - cd); }
+    document.querySelectorAll(".fuel").forEach(function(b){
+      var id = b.dataset.fuel, f = fuelInfo(id, c.pumpa), disc = shownDisc(id);
+      b.setAttribute("aria-checked", id === cur ? "true" : "false");
+      b.querySelector(".f-name").textContent = f ? f.naziv : (BASE_NAMES[id] || "");
+      var box = b.querySelector(".f-price"), old = b.querySelector(".f-old"), chg = b.querySelector(".f-chg"), dd = b.querySelector(".f-disc");
+      var cut = f ? shownCut(disc, f.cena) : 0;
+      old.textContent = cut > 0 ? fmtPrice(f.cena) : ""; old.hidden = !(cut > 0);
+      if (f){ var u = make("small", null, " din/l"); box.replaceChildren(fmtPrice(round2(f.cena - cut)), u); } else box.textContent = "–";
+      var discCut = f ? perLiterCut(disc, f.cena) : 0;
+      dd.textContent = coupon > 0 && f ? (discCut > 0 ? "sa popustom i kuponom" : "sa kuponom")
+                     : cut > 0 ? "sa tvojim popustom" : (disc && disc.tip === "bodovi" && f ? "+ bodovi" : "");
+      dd.hidden = !dd.textContent;
+      chg.className = "f-chg"; chg.textContent = ""; chg.removeAttribute("title");
+      if (f && f.pre > 0){
+        var diff = round2(f.cena - f.pre);
+        if (diff > 0){ chg.textContent = "+" + fmtPrice(diff) + " din"; chg.className = "f-chg up"; chg.title = "Poskupelo u odnosu na prošlu nedelju"; }
+        else if (diff < 0){ chg.textContent = "−" + fmtPrice(-diff) + " din"; chg.className = "f-chg down"; chg.title = "Pojeftinilo u odnosu na prošlu nedelju"; }
+        else { chg.textContent = "bez promene"; chg.title = "Ista cena kao prošle nedelje"; }
+      }
+    });
+    var v = $("priceValid");
+    if (prices && prices.vaziDo && prices.vaziDo < iso(new Date())) v.textContent = "Čeka se objava novih cena";
+    else if (prices && prices.vaziDo) v.textContent = "Cene važe do " + dfLong.format(parseISO(prices.vaziDo));
+    else v.textContent = "";
+
+    var line = $("priceLine"), fi = fuelInfo(cur, c.pumpa), parts = [];
+    var p = fi ? round2(fi.cena - shownCut(shownDisc(cur), fi.cena)) : null;
+    function strong(t){ return make("strong", null, t); }
+    if (p && c.rezervoar) parts.push("Pun rezervoar danas košta oko ", strong(din(c.rezervoar*p)), ". ");
+    if (p && lastAvg != null) parts.push("100 km te košta oko ", strong(din(lastAvg*p)), ".");
+    line.hidden = !parts.length;
+    if (parts.length) line.replaceChildren.apply(line, parts);
+    $("tipDisc").hidden = !(c.pumpa && !settings.saveti.popust && !settings.popusti.some(function(d){ return d.pumpa === c.pumpa; }));
+    syncNoDisc();
+  }
+  /* "Bez popusta ovaj put": shown only when a discount would apply, and never carried over to the next fill-up. */
+  function syncNoDisc(){
+    var c = activeCar(), d = c ? discountFor(c.pumpa, curFuel()) : null, row = $("noDiscRow");
+    var coupon = couponValue(), note = $("couponNote");
+    note.textContent = coupon > 0 && d ? (d.kuponSabira ? "Kupon se sabira sa tvojim " + BRANDS[d.pumpa] + " popustom." : "Kupon ide na običnu cenu. " + BRANDS[d.pumpa] + " popust se ovaj put ne računa.") : "";
+    note.hidden = !note.textContent;
+    var show = !!d && !$("fRead").checked && !(coupon > 0 && !d.kuponSabira);
+    if (!show && $("fNoDisc").checked) $("fNoDisc").checked = false;
+    row.hidden = !show;
+    if (d) $("noDiscTxt").textContent = "Važi samo za ovo sipanje, posle se " + BRANDS[d.pumpa] + " popust opet računa sam.";
+  }
+  function chooseFuel(f){
+    var c = activeCar(); if (!c || !isFuel(f) || f === c.vrsta) return;
+    c.vrsta = f; saveSettings(); render(); refillAuto();
+  }
+  $("fPump").addEventListener("change", function(){
+    var c = activeCar(); if (!c) return;
+    c.pumpa = this.value && BRANDS[this.value] ? this.value : null;
+    if (!BASE_NAMES[c.vrsta] && !fuelInfo(c.vrsta, c.pumpa)) c.vrsta = FALLBACK[c.vrsta];
+    saveSettings(); render(); refillAuto();
+  });
+  $("tipOk").addEventListener("click", function(){ settings.saveti.popust = true; saveSettings(); renderAuto(); });
+  $("tipAdd").addEventListener("click", function(){ settings.saveti.popust = true; saveSettings(); var c = activeCar(); showView("settings"); openWizard(c && c.pumpa); });
+
+  /* ---------- car switch ---------- */
+  $("carSel").addEventListener("change", function(){
+    settings.aktivno = this.value; fuelKey = "";
+    $("fRead").checked = false; $("fNoDisc").checked = false; setReadingMode();
+    autoField = null; $("fL").value = ""; $("fCost").value = "";
+    saveSettings(); render(); updateHint();
+  });
+
+  /* ---------- views ---------- */
+  function showView(name){
+    ["home", "stats", "settings"].forEach(function(v){
+      $("view-" + v).hidden = v !== name;
+      $("tab-" + v).setAttribute("aria-selected", v === name ? "true" : "false");
+    });
+    if (name === "stats") renderStats();
+    if (name === "settings") renderSettings();
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll(".tab").forEach(function(t){ t.addEventListener("click", function(){ showView(t.dataset.view); }); });
+  document.addEventListener("click", function(ev){
+    var g = ev.target.closest && ev.target.closest("[data-goto]");
+    if (g){ showView(g.dataset.goto); if (g.dataset.about) $("aboutTitle").scrollIntoView({block:"start"}); return; }
+    var q = ev.target.closest && ev.target.closest(".q");
+    if (q){ var h = $(q.getAttribute("aria-controls")); var open = q.getAttribute("aria-expanded") !== "true"; q.setAttribute("aria-expanded", open ? "true" : "false"); if (h) h.hidden = !open; }
+  });
+
+  /* ---------- theme ---------- */
+  function applyTheme(){
+    var r = document.documentElement;
+    if (settings.tema === "svetla") r.setAttribute("data-theme", "light");
+    else if (settings.tema === "tamna") r.setAttribute("data-theme", "dark");
+    else if (r.dataset.dgTheme) r.removeAttribute("data-theme");
+    r.dataset.dgTheme = settings.tema;
+    document.querySelectorAll("[data-theme-choice]").forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.themeChoice === settings.tema ? "true" : "false"); });
+  }
+  document.querySelectorAll("[data-theme-choice]").forEach(function(b){ b.addEventListener("click", function(){ settings.tema = b.dataset.themeChoice; saveSettings(); applyTheme(); }); });
+
+  /* ---------- statistics ---------- */
+  var period = "sve";
+  document.querySelectorAll("[data-period]").forEach(function(b){
+    b.addEventListener("click", function(){ period = b.dataset.period; document.querySelectorAll("[data-period]").forEach(function(x){ x.setAttribute("aria-pressed", x === b ? "true" : "false"); }); renderStats(); });
+  });
+  var WEEKDAYS = ["nedeljom", "ponedeljkom", "utorkom", "sredom", "četvrtkom", "petkom", "subotom"];
+
+  function periodStart(){
+    var t = new Date();
+    if (period === "mesec") return iso(new Date(t.getFullYear(), t.getMonth(), 1));
+    if (period === "3m") return iso(new Date(t.getFullYear(), t.getMonth(), t.getDate() - 90));
+    if (period === "godina") return iso(new Date(t.getFullYear(), 0, 1));
+    return null;
+  }
+  /* Kilometers driven by one car in the period: from the last reading before the period (if any) to the last reading in it. */
+  function kmInPeriod(list, start){
+    var r = list.filter(function(e){ return e.km; }).sort(byTime), inP = r.filter(function(e){ return !start || e.datum >= start; });
+    if (!inP.length) return 0;
+    var before = start ? r.filter(function(e){ return e.datum < start; }) : [];
+    var base = before.length ? before[before.length-1].km : inP[0].km;
+    return Math.max(0, inP[inP.length-1].km - base);
+  }
+  function kvCard(title, rows, extra){
+    var card = make("section", "card"), head = make("div", "card-head"); head.append(make("h2", null, title)); card.append(head);
+    var dl = make("dl", "kv");
+    rows.forEach(function(r){
+      if (!r) return;
+      var dt = make("dt", null, r[0]), dd = make("dd", null, r[1]);
+      if (r[2]) dd.append(make("small", null, r[2]));
+      dl.append(dt, dd);
+    });
+    card.append(dl);
+    if (extra) card.append(extra);
+    return card;
+  }
+  function renderStats(){
+    var body = $("statsBody"); body.replaceChildren();
+    var ds = dataset(), start = periodStart(), today = iso(new Date());
+    var cars = ds.real ? (settings.aktivno === "sve" ? settings.auta : [activeCar()]) : [SAMPLE_CAR];
+    $("statsScope").textContent = !ds.real ? "primer" : settings.aktivno === "sve" ? "Sve zajedno" : activeCar().ime;
+
+    var allFills = [], km = 0, segs = [], perCar = [];
+    cars.forEach(function(c){
+      var list = ds.byCar[c.id] || [], comp = compute(list, c.rezervoar);
+      var fills = comp.fills.filter(function(e){ return !start || e.datum >= start; });
+      var kmc = kmInPeriod(list, start);
+      km += kmc; allFills = allFills.concat(fills.map(function(e){ return {e:e, car:c}; }));
+      comp.segs.forEach(function(s){ if (!start || s.datum >= start) segs.push({s:s, car:c}); });
+      perCar.push({car:c, km:kmc, cost:fills.reduce(function(t, e){ return t + e.cena; }, 0), count:fills.length, avg:comp.avg});
+    });
+    if (!allFills.length && !km){ body.append(kvCard("Nema podataka", [["Za izabrani period još nema upisa.", ""]])); return; }
+
+    var first = start || (allFills.length ? allFills.map(function(x){ return x.e.datum; }).sort()[0] : today);
+    var days = Math.max(1, daysBetween(first, today) + 1);
+    var liters = 0, cost = 0, save = 0, prem = 0, reg = 0, byMonth = {}, byPump = {}, byDay = [0,0,0,0,0,0,0];
+    allFills.forEach(function(x){
+      var e = x.e; liters += e.litara; cost += e.cena; save += (e.ustedjeno || 0) + (e.bodovi || 0);
+      if (isPremium(e.vrsta)) prem += e.cena; else reg += e.cena;
+      var m = e.datum.slice(0, 7); byMonth[m] = (byMonth[m] || 0) + e.cena;
+      if (e.pumpa) byPump[e.pumpa] = (byPump[e.pumpa] || 0) + 1;
+      byDay[parseISO(e.datum).getDay()]++;
+    });
+    var n = allFills.length;
+
+    /* Vožnja */
+    body.append(kvCard("Vožnja", [
+      ["Pređeno", km ? f0.format(km) + " km" : "–", km ? null : "upiši kilometražu bar dvaput"],
+      km ? ["Prosečno dnevno", f0.format(km/days) + " km"] : null,
+      km ? ["Prosečno mesečno", f0.format(km/days*30.44) + " km"] : null,
+      km ? ["Procena za celu godinu", f0.format(km/days*365) + " km", "ako nastaviš ovim tempom"] : null
+    ]));
+
+    /* Gorivo */
+    var best = null, worst = null;
+    segs.forEach(function(x){ if (!best || x.s.cons < best.s.cons) best = x; if (!worst || x.s.cons > worst.s.cons) worst = x; });
+    var gaps = [];
+    cars.forEach(function(c){
+      var fl = allFills.filter(function(x){ return x.car.id === c.id; }).map(function(x){ return x.e.datum; }).sort();
+      for (var i = 1; i < fl.length; i++) gaps.push(daysBetween(fl[i-1], fl[i]));
+    });
+    var multi = cars.length > 1;
+    function where(x){ return dfLong.format(parseISO(x.s.datum)) + (multi ? ", " + x.car.ime : ""); }
+    body.append(kvCard("Gorivo", [
+      ["Ukupno sipano", f1.format(liters) + " l"],
+      ["Broj sipanja", String(n)],
+      n ? ["Obično sipaš", "oko " + f0.format(liters/n) + " l"] : null,
+      best ? ["Najbolja potrošnja", f1.format(best.s.cons) + " l/100 km", where(best)] : null,
+      worst && worst !== best ? ["Najgora potrošnja", f1.format(worst.s.cons) + " l/100 km", where(worst)] : null,
+      gaps.length ? ["Između dva sipanja", "oko " + f0.format(gaps.reduce(function(a, b){ return a + b; }, 0)/gaps.length) + " dana"] : null,
+      km && n ? ["Pređeš po sipanju", "oko " + f0.format(km/n) + " km"] : null
+    ]));
+
+    /* Novac */
+    var topMonth = Object.keys(byMonth).sort(function(a, b){ return byMonth[b] - byMonth[a]; })[0];
+    body.append(kvCard("Novac", [
+      ["Ukupno za gorivo", din(cost)],
+      period !== "mesec" && days >= 28 ? ["Mesečni prosek", din(cost/days*30.44)] : null,
+      ["Procena za celu godinu", din(cost/days*365), "ako nastaviš ovim tempom"],
+      topMonth && Object.keys(byMonth).length > 1 ? ["Najskuplji mesec", din(byMonth[topMonth]), dfMonthYear.format(parseISO(topMonth + "-01"))] : null,
+      ["Vožnja te košta dnevno", "oko " + din(cost/days)],
+      prem > 0 ? ["Premium / obično gorivo", din(prem) + " / " + din(reg)] : null,
+      save > 0 ? ["Uštedeo na popustima", din(save), "popusti, kuponi i bodovi"] : null
+    ]));
+
+    /* Zanimljivosti */
+    var fun = make("ul", "fun");
+    function funItem(parts){ var li = make("li"); parts.forEach(function(p){ li.append(typeof p === "string" ? document.createTextNode(p) : p); }); fun.append(li); }
+    if (km >= KM_KRUSEVAC_BEOGRAD){ var trips = km/KM_KRUSEVAC_BEOGRAD; funItem(["Prešao si kao od Kruševca do Beograda ", make("strong", null, f0.format(trips)), Math.round(trips) % 10 >= 2 && Math.round(trips) % 10 <= 4 && (Math.round(trips) % 100 < 12 || Math.round(trips) % 100 > 14) ? " puta." : " puta."]); }
+    var favPump = Object.keys(byPump).sort(function(a, b){ return byPump[b] - byPump[a]; })[0];
+    if (favPump) funItem(["Omiljena pumpa: ", make("strong", null, BRANDS[favPump]), " (" + byPump[favPump] + " " + plural(byPump[favPump]) + ")."]);
+    if (n >= 3){ var dmax = 0; for (var i = 1; i < 7; i++) if (byDay[i] > byDay[dmax]) dmax = i; funItem(["Najčešće sipaš ", make("strong", null, WEEKDAYS[dmax]), "."]); }
+    if (liters > 0) funItem(["Sipao si ", make("strong", null, f0.format(liters) + " l"), ", to je oko " + f0.format(liters/10) + " kanistera od 10 litara."]);
+    if (fun.children.length){ var fc = make("section", "card"), fh = make("div", "card-head"); fh.append(make("h2", null, "Zanimljivosti")); fc.append(fh, fun); body.append(fc); }
+
+    /* Poređenje automobila */
+    if (ds.real && settings.aktivno === "sve" && settings.auta.length > 1){
+      var cc = make("section", "card"), ch = make("div", "card-head"); ch.append(make("h2", null, "Poređenje automobila")); cc.append(ch);
+      var wrap = make("div", "table-wrap"), tb = make("table", "cmp"), th = make("thead"), tr = make("tr");
+      ["Auto", "Potrošnja", "Pređeno", "Troškovi", "Sipanja"].forEach(function(h){ tr.append(make("th", null, h)); });
+      th.append(tr); tb.append(th);
+      var tbody = make("tbody"), tk = 0, tc = 0, tn = 0;
+      perCar.forEach(function(p){
+        var r = make("tr");
+        [p.car.ime, p.avg != null ? f1.format(p.avg) + " l" : "–", p.km ? f0.format(p.km) + " km" : "–", din(p.cost), String(p.count)].forEach(function(v){ r.append(make("td", null, v)); });
+        tbody.append(r); tk += p.km; tc += p.cost; tn += p.count;
+      });
+      var tot = make("tr", "total");
+      ["Cela garaža", "", tk ? f0.format(tk) + " km" : "–", din(tc), String(tn)].forEach(function(v){ tot.append(make("td", null, v)); });
+      tbody.append(tot); tb.append(tbody); wrap.append(tb); cc.append(wrap); body.append(cc);
+    }
+  }
+
+  /* ---------- settings: garage ---------- */
+  function renderSettings(){ renderGarage(); renderDiscounts(); renderAccount(); renderAbout(); applyTheme(); }
+
+  function carField(c, key, label, ph, mode){
+    var lab = make("label", "field"), id = "car-" + c.id + "-" + key;
+    lab.htmlFor = id;
+    lab.append(make("span", null, label));
+    var inp = make("input"); inp.id = id; inp.type = "text"; inp.autocomplete = "off"; inp.placeholder = ph;
+    if (mode === "txt"){ inp.className = "txt"; inp.value = c[key] || ""; }
+    else { inp.inputMode = mode === "int" ? "numeric" : "decimal"; inp.value = c[key] ? (mode === "int" ? String(c[key]) : litersText(c[key])) : ""; }
+    var t = null;
+    function commit(){
+      clearTimeout(t);
+      var raw = inp.value.trim(), val;
+      if (mode === "txt"){ val = raw.slice(0, 40) || c.ime; }
+      else if (!raw) val = null;
+      else { val = mode === "int" ? parseKm(raw) : parseNum(raw); if (!(val > 0) || (key === "rezervoar" && (val < 5 || val > 200))){ inp.setAttribute("aria-invalid", "true"); return; } }
+      inp.removeAttribute("aria-invalid");
+      if (val === c[key]) return;
+      c[key] = key === "rezervoar" && val ? Math.round(val*10)/10 : val;
+      saveSettings(); render();
+    }
+    inp.addEventListener("input", function(){ clearTimeout(t); t = setTimeout(commit, 700); });
+    inp.addEventListener("change", commit); inp.addEventListener("blur", commit);
+    lab.append(inp);
+    return lab;
+  }
+  function renderGarage(){
+    var g = $("garage");
+    if (g.contains(document.activeElement)) return;   // don't rebuild while someone is typing in it
+    g.replaceChildren();
+    settings.auta.forEach(function(c){
+      var item = make("div", "car-item" + (c.id === settings.aktivno ? " active" : ""));
+      var head = make("div", "car-item-head");
+      var title = make("h3", null, c.ime);
+      head.append(title);
+      if (c.id === settings.aktivno) head.append(make("span", "pill", "izabran"));
+      else { var pick = make("button", "btn small ghost", "Izaberi"); pick.type = "button"; pick.addEventListener("click", function(){ settings.aktivno = c.id; fuelKey = ""; saveSettings(); render(); }); head.append(pick); }
+      item.append(head);
+      var f1r = make("div", "fields two");
+      f1r.append(carField(c, "ime", "Ime", "npr. Golf", "txt"), carField(c, "rezervoar", "Rezervoar (litara)", "npr. 50", "dec"));
+      var f2r = make("div", "fields two");
+      f2r.append(carField(c, "maliInterval", "Mali servis na svakih (km)", "npr. 15000", "int"), carField(c, "maliKm", "Poslednji mali servis na (km)", "npr. 180000", "int"));
+      var f3r = make("div", "fields two");
+      f3r.append(carField(c, "velikiInterval", "Veliki servis na svakih (km)", "npr. 90000", "int"), carField(c, "velikiKm", "Poslednji veliki servis na (km)", "npr. 120000", "int"));
+      item.append(f1r, f2r, f3r, make("p", "how", "Servis nije obavezan. Koliko često se radi piše u servisnoj knjižici ili ti kaže majstor. Aplikacija te podseti kad ostane manje od 1.000 km, ali samo ako redovno upisuješ kilometražu."));
+      if (settings.auta.length > 1){
+        var del = make("button", "btn small danger", "Obriši auto i njegova sipanja"); del.type = "button";
+        armButton(del, "Sigurno? Dodirni ponovo", function(){ deleteCar(c.id); });
+        var bw = make("div", "btns"); bw.append(del); item.append(bw);
+      }
+      g.append(item);
+    });
+  }
+  $("addCar").addEventListener("click", function(){
+    var c = newCar("Auto " + (settings.auta.length + 1));
+    settings.auta.push(c); settings.aktivno = c.id; fuelKey = "";
+    saveSettings(); render(); renderGarage();
+    var inp = $("car-" + c.id + "-ime"); if (inp){ inp.focus(); inp.select(); }
+  });
+  async function deleteCar(id){
+    var mine = entries.filter(function(e){ return carOf(e) === id; });
+    await removeMany(mine.map(function(e){ return e.id; }));
+    settings.auta = settings.auta.filter(function(c){ return c.id !== id; });
+    if (!settings.auta.length) settings = defaultSettings();
+    if (settings.aktivno === id || (settings.aktivno === "sve" && settings.auta.length < 2)) settings.aktivno = settings.auta[0].id;
+    settings.popusti = settings.popusti.slice();
+    saveSettings(); fuelKey = ""; render(); renderGarage();
+  }
+
+  /* ---------- settings: discounts + wizard ---------- */
+  function renderDiscounts(){
+    var box = $("discList"); box.replaceChildren();
+    if (!settings.popusti.length){ box.append(make("p", "how", "Još nemaš upisan nijedan popust.")); }
+    settings.popusti.forEach(function(p){
+      var it = make("div", "disc-item"), txt = make("p");
+      txt.append(make("strong", null, BRANDS[p.pumpa] + (p.nivo ? " · " + p.nivo : "")), make("small", null, discText(p)));
+      var acts = make("span", "btns");
+      var ed = make("button", "btn small ghost", "Izmeni"); ed.type = "button";
+      ed.setAttribute("aria-label", "Izmeni popust na " + BRANDS[p.pumpa]);
+      ed.addEventListener("click", function(){ openWizard(p.pumpa, p); });
+      var del = make("button", "btn small danger", "Obriši"); del.type = "button";
+      armButton(del, "Sigurno?", function(){ settings.popusti = settings.popusti.filter(function(x){ return x.id !== p.id; }); saveSettings(); renderDiscounts(); render(); });
+      acts.append(ed, del); it.append(txt, acts); box.append(it);
+    });
+  }
+  var wiz = null;
+  function numText(v){ return v > 0 ? String(v).replace(".", ",") : ""; }
+  /* na: which fuels the discount covers — premium | obicno | sva (same amount) | razlicito (own amount each) */
+  function openWizard(pumpa, edit){
+    wiz = {step:1, id:null, pumpa:pumpa || "", tip:null, na:"premium", iznos:"", iznos2:"", limit:"", nivo:"", kuponSabira:false};
+    if (edit){
+      var na = edit.premium > 0 && edit.obicno > 0 ? (edit.premium === edit.obicno ? "sva" : "razlicito") : edit.obicno > 0 ? "obicno" : "premium";
+      wiz.id = edit.id; wiz.tip = edit.tip; wiz.na = na; wiz.nivo = edit.nivo || "";
+      wiz.iznos = numText(na === "obicno" ? edit.obicno : edit.premium); wiz.iznos2 = na === "razlicito" ? numText(edit.obicno) : "";
+      wiz.limit = edit.limit ? String(edit.limit) : "";
+      wiz.kuponSabira = !!edit.kuponSabira;
+    }
+    renderWizard(); $("wizard").scrollIntoView({block:"center"});
+  }
+  function wizDisc(){
+    var a = parseNum(wiz.iznos), b = parseNum(wiz.iznos2), na = wiz.na;
+    return cleanDisc({id:wiz.id, pumpa:wiz.pumpa, tip:wiz.tip,
+      premium: na === "premium" || na === "sva" || na === "razlicito" ? a : 0,
+      obicno: na === "obicno" || na === "sva" ? a : na === "razlicito" ? b : 0,
+      limit:parseNum(wiz.limit), nivo:wiz.nivo.trim(), kuponSabira:wiz.kuponSabira});
+  }
+  $("addDisc").addEventListener("click", function(){ openWizard(); });
+  function wizSentence(){
+    var p = wizDisc();
+    if (!p) return "";
+    var pump = BRANDS[p.pumpa];
+    if (p.tip === "kuponi") return "Kad sipaš na " + pump + " pumpi i imaš kupon, dodirni „Imam kupon“ pri upisu i upiši koliko je manje po litru.";
+    if (!(p.premium > 0) && !(p.obicno > 0)) return "";
+    if (p.tip === "bodovi"){
+      var on = p.premium > 0 && p.obicno > 0 ? "bilo koje gorivo" : p.premium > 0 ? "premium gorivo" : "obično gorivo";
+      return "Kad sipaš " + on + " na " + pump + " pumpi, plaćaš punu cenu, a u statistici se vidi koliko vrede bodovi koje skupiš.";
+    }
+    function cut(v){ return p.tip === "litar" ? fmtPrice(v) + " din po litru" : fmtPrice(v) + "%"; }
+    var verb = p.tip === "litar" ? "cena se sama smanji za " : "iznos se sam smanji za ";
+    if (p.premium > 0 && p.obicno > 0 && p.premium !== p.obicno)
+      return "Na " + pump + " pumpi " + verb + cut(p.premium) + " kad sipaš premium, a za " + cut(p.obicno) + " kad sipaš obično gorivo.";
+    var target = p.premium > 0 && p.obicno > 0 ? "bilo koje gorivo" : p.premium > 0 ? "premium gorivo" : "obično gorivo (evrodizel ili BMB 95)";
+    return "Kad sipaš " + target + " na " + pump + " pumpi, " + verb + cut(p.premium || p.obicno) + ".";
+  }
+  function renderWizard(){
+    var w = $("wizard");
+    if (!wiz){ w.hidden = true; w.replaceChildren(); $("addDisc").hidden = false; return; }
+    w.hidden = false; $("addDisc").hidden = true; w.className = "wizard"; w.replaceChildren();
+    w.append(make("div", "steps", "Korak " + wiz.step + " od 3"));
+    var nav = make("div", "btns"), back = make("button", "btn small ghost", wiz.step === 1 ? "Otkaži" : "Nazad"), next = make("button", "btn small", wiz.step === 3 ? "Sačuvaj popust" : "Dalje");
+    back.type = "button"; next.type = "button";
+    var err = make("p", "msg err"); err.setAttribute("role", "status");
+    if (wiz.step === 1){
+      var lab = make("label", "field"); lab.htmlFor = "wPump";
+      lab.append(make("span", null, "Na kojoj pumpi imaš popust?"));
+      var sw = make("span", "select-wrap"), sel = make("select"); sel.id = "wPump";
+      var o0 = make("option", null, "Izaberi pumpu"); o0.value = ""; sel.append(o0);
+      Object.keys(BRANDS).forEach(function(k){ var o = make("option", null, BRANDS[k]); o.value = k; sel.append(o); });
+      sel.value = wiz.pumpa; sel.addEventListener("change", function(){ wiz.pumpa = sel.value; });
+      sw.append(sel); lab.append(sw); w.append(lab);
+      var nl = make("label", "field"); nl.htmlFor = "wNivo";
+      nl.append(make("span", null, "Nivo ili kartica (nije obavezno)"));
+      var ni = make("input"); ni.id = "wNivo"; ni.className = "txt"; ni.type = "text"; ni.placeholder = "npr. Silver"; ni.value = wiz.nivo;
+      ni.addEventListener("input", function(){ wiz.nivo = ni.value; });
+      nl.append(ni); w.append(nl);
+    }
+    if (wiz.step === 2){
+      w.append(make("h3", null, "Kako dobijaš popust?"));
+      var ch = make("div", "choice");
+      [["litar", "Manja cena po litru", "npr. 8 din manje po litru"],
+       ["procenat", "Procenat na račun", "npr. 5% manje na ceo iznos"],
+       ["bodovi", "Skupljam bodove", "plaćaš punu cenu, a dobijaš bodove ili povraćaj novca"],
+       ["kuponi", "Samo kuponi i akcije", "popust stiže povremeno, ne svaki put"]].forEach(function(o){
+        var b = make("button"); b.type = "button"; b.setAttribute("aria-pressed", wiz.tip === o[0] ? "true" : "false");
+        b.append(make("strong", null, o[1]), make("span", null, o[2]));
+        b.addEventListener("click", function(){ wiz.tip = o[0]; renderWizard(); });
+        ch.append(b);
+      });
+      w.append(ch);
+    }
+    if (wiz.step === 3){
+      if (wiz.tip !== "kuponi"){
+        w.append(make("h3", null, "Na koja goriva važi popust?"));
+        var sg = make("div", "seg");
+        [["premium", "Samo premium"], ["obicno", "Samo obična"], ["sva", "Sva, isti iznos"], ["razlicito", "Različit iznos"]].forEach(function(o){
+          var b = make("button", null, o[1]); b.type = "button"; b.setAttribute("aria-pressed", wiz.na === o[0] ? "true" : "false");
+          b.addEventListener("click", function(){ wiz.na = o[0]; renderWizard(); });
+          sg.append(b);
+        });
+        w.append(sg);
+        w.append(make("p", "how", "Obična goriva su evrodizel i BMB 95. Premium su G-Drive, MaxxMotion, Dizel Plus i slična."));
+        var unit = wiz.tip === "litar" ? ["dinara manje po litru", "npr. 4"] : wiz.tip === "procenat" ? ["procenata", "npr. 3"] : ["dinara po litru u bodovima, otprilike", "npr. 2"];
+        function amountField(id, label, key){
+          var al = make("label", "field"); al.htmlFor = id; al.append(make("span", null, label));
+          var ai = make("input"); ai.id = id; ai.type = "text"; ai.inputMode = "decimal"; ai.placeholder = unit[1]; ai.value = wiz[key];
+          ai.addEventListener("input", function(){ wiz[key] = ai.value; sum.textContent = wizSentence(); sum.hidden = !sum.textContent; });
+          al.append(ai); return al;
+        }
+        if (wiz.na === "razlicito"){
+          var two = make("div", "fields two");
+          two.append(amountField("wIznos", "Na premium: " + unit[0], "iznos"), amountField("wIznos2", "Na obična: " + unit[0], "iznos2"));
+          w.append(two);
+        } else {
+          var lead = wiz.na === "premium" ? "Na premium: " : wiz.na === "obicno" ? "Na obična: " : "Na sva goriva: ";
+          w.append(amountField("wIznos", lead + unit[0], "iznos"));
+        }
+        if (wiz.tip === "bodovi") w.append(make("p", "how", "Ne znaš tačno? Upiši procenu. Služi samo za statistiku, ne menja cenu."));
+        var ll = make("label", "field"); ll.htmlFor = "wLimit"; ll.append(make("span", null, "Najviše litara mesečno sa popustom (nije obavezno)"));
+        var li = make("input"); li.id = "wLimit"; li.type = "text"; li.inputMode = "numeric"; li.placeholder = "ostavi prazno ako nema ograničenja"; li.value = wiz.limit;
+        li.addEventListener("input", function(){ wiz.limit = li.value; sum.textContent = wizSentence(); });
+        ll.append(li); w.append(ll);
+        var kl = make("label", "check"); kl.htmlFor = "wKupon";
+        var kc = make("input"); kc.id = "wKupon"; kc.type = "checkbox"; kc.checked = wiz.kuponSabira;
+        kc.addEventListener("change", function(){ wiz.kuponSabira = kc.checked; });
+        var kt = make("span"); kt.append(make("strong", null, "Kupon se sabira sa ovim popustom."), document.createTextNode(" Ostavi prazno ako na ovoj pumpi kupon ide umesto popusta, što je najčešće."));
+        kl.append(kc, kt); w.append(kl);
+      }
+      var sum = make("p", "summary", wizSentence()); sum.hidden = !sum.textContent; w.append(sum);
+    }
+    back.addEventListener("click", function(){ if (wiz.step === 1) wiz = null; else wiz.step--; renderWizard(); });
+    next.addEventListener("click", function(){
+      if (wiz.step === 1 && !wiz.pumpa){ err.textContent = "Izaberi pumpu."; return; }
+      if (wiz.step === 2 && !wiz.tip){ err.textContent = "Izaberi kako dobijaš popust."; return; }
+      if (wiz.step === 3){
+        if (wiz.tip !== "kuponi"){
+          var a1 = parseNum(wiz.iznos), a2 = parseNum(wiz.iznos2);
+          if (!(a1 > 0)){ err.textContent = wiz.na === "razlicito" ? "Upiši popust na premium, npr. 4." : "Upiši broj, npr. 4."; return; }
+          if (wiz.na === "razlicito" && !(a2 > 0)){ err.textContent = "Upiši popust na obična goriva, npr. 2."; return; }
+          if (wiz.tip === "procenat" && (a1 > 50 || a2 > 50)){ err.textContent = "To je mnogo za popust. Proveri broj."; return; }
+        }
+        if (!wiz.id) wiz.id = newId("p");
+        var p = wizDisc();
+        settings.popusti = settings.popusti.filter(function(x){ return x.id !== p.id && !(x.pumpa === p.pumpa && x.tip !== "kuponi" && p.tip !== "kuponi"); }).concat([p]);
+        settings.saveti.popust = true;
+        wiz = null; saveSettings(); renderWizard(); renderDiscounts(); render(); refillAuto();
+        return;
+      }
+      wiz.step++; renderWizard();
+    });
+    nav.append(back, next); w.append(nav, err);
+  }
+
+  /* ---------- settings: account, about, data ---------- */
+  function renderAccount(){
+    $("accCard").hidden = WEB;
+    var b = $("accBody"); b.replaceChildren();
+    if (WEB) return;
+    if (mode === "db"){ b.append(make("p", null, "Prijavljen si i sipanja se čuvaju na tvom Claude nalogu, pa ih vidiš sa svakog uređaja.")); return; }
+    b.append(make("p", null, "Sipanja se sada čuvaju u ovom telefonu. Prijava na Claude je potrebna samo vlasniku aplikacije, da bi mu se sipanja čuvala na nalogu. Ostali ne moraju da se prijavljuju."));
+    var a = make("a", "btn small", "Prijavi se na Claude"); a.href = "https://claude.ai/login"; a.target = "_blank"; a.rel = "noopener";
+    var p = make("p"); p.append(a); b.append(p);
+  }
+  function renderAbout(){
+    var t = "Evrodizel i BMB 95 imaju najvišu cenu koju država objavljuje petkom";
+    function d(s){ return dfLong.format(parseISO(s)).replace(/\.$/, ""); }
+    if (prices && prices.vaziDo) t += ", trenutne važe do " + d(prices.vaziDo);
+    t += ". Na nekim pumpama mogu biti i niže. Premium goriva svaka pumpa naplaćuje po svom";
+    if (prices && prices.pumpeProvereno) t += ", poslednja provera " + d(prices.pumpeProvereno);
+    $("aboutPrices").textContent = t + ". Sve cene se proveravaju jednom nedeljno.";
+    $("aboutData").textContent = mode === "db" ? "Čuvaju se na tvom Claude nalogu i niko drugi ih ne vidi." : "Čuvaju se u ovom telefonu. Ako obrišeš podatke pregledača ili promeniš telefon, nestaće, pa povremeno izvezi tabelu.";
+  }
+
+  function csv(){
+    var head = ["Auto","Datum","Upis","Litara","Placeno (din)","Usteda (din)","Kazaljka","Kilometraza","Pumpa","Gorivo"];
+    var rows = entries.slice().sort(byTime).map(function(e){
+      var c = car(carOf(e));
+      return [c ? c.ime : "", e.datum, e.ocitavanje ? "ocitavanje" : "sipanje", e.ocitavanje ? "" : String(e.litara).replace(".", ","), e.ocitavanje ? "" : String(Math.round(e.cena)),
+              e.ustedjeno ? String(Math.round(e.ustedjeno)) : "", e.nivo != null ? (LEVELS[String(e.nivo)] || "") : "", e.km || "", e.pumpa ? BRANDS[e.pumpa] : "", e.gorivo || (e.vrsta ? (BASE_NAMES[e.vrsta] || e.vrsta) : "")];
+    });
+    return "﻿" + [head].concat(rows).map(function(r){ return r.map(function(v){ v = String(v); return /[;"\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(";"); }).join("\r\n");
+  }
+  $("exportBtn").addEventListener("click", async function(){
+    var dm = $("dataMsg");
+    if (!entries.length){ dm.className = "msg err"; dm.textContent = "Još nema sipanja za izvoz."; return; }
+    var text = csv(), dl = null;
+    try { if (window.claude && window.claude.use) dl = await window.claude.use("downloads"); } catch(e){}
+    if (dl){
+      try { await dl.save({filename:"dnevnik-goriva-" + iso(new Date()) + ".csv", data:new Blob([text], {type:"text/csv;charset=utf-8"})}); dm.className = "msg ok"; dm.textContent = "Tabela je sačuvana."; return; }
+      catch(e){
+        if (e && e.code === "declined"){ dm.className = "msg"; dm.textContent = "Preuzimanje je otkazano."; return; }
+        /* saving isn't possible in this view: fall through to copy */
+      }
+    }
+    if (WEB){
+      try {
+        var url = URL.createObjectURL(new Blob([text], {type:"text/csv;charset=utf-8"})), a = document.createElement("a");
+        a.href = url; a.download = "dnevnik-goriva-" + iso(new Date()) + ".csv"; document.body.append(a); a.click(); a.remove();
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+        dm.className = "msg ok"; dm.textContent = "Tabela je skinuta. Ako se ne pojavi, kopiraj je ispod.";
+      } catch(e){}
+    }
+    $("exportText").value = text.replace(/^﻿/, ""); $("exportBox").hidden = false; if (!WEB) dm.textContent = "";
+  });
+  $("copyExport").addEventListener("click", function(){
+    var t = $("exportText"), dm = $("dataMsg");
+    try { navigator.clipboard.writeText(t.value).then(function(){ dm.className = "msg ok"; dm.textContent = "Kopirano."; }, function(){ t.select(); dm.className = "msg"; dm.textContent = "Označeno, sad kopiraj."; }); }
+    catch(e){ t.select(); dm.className = "msg"; dm.textContent = "Označeno, sad kopiraj."; }
+  });
+  armButton($("delCarData"), "Sigurno? Dodirni ponovo", async function(){
+    var c = activeCar(), dm = $("dataMsg");
+    if (!c){ dm.className = "msg err"; dm.textContent = "Prvo gore izaberi jedan auto."; return; }
+    await removeMany(entries.filter(function(e){ return carOf(e) === c.id; }).map(function(e){ return e.id; }));
+    dm.className = "msg ok"; dm.textContent = "Obrisana su sipanja za " + c.ime + ".";
+  });
+  armButton($("delAll"), "Sigurno? Dodirni ponovo", async function(){
+    await removeMany(entries.map(function(e){ return e.id; }));
+    settings = defaultSettings(); saveSettings(); fuelKey = ""; render(); renderSettings();
+    var dm = $("dataMsg"); dm.className = "msg ok"; dm.textContent = "Svi podaci su obrisani.";
+  });
+
+  /* ---------- storage ---------- */
+  var mode = "loading", loaded = false, col = null, settingsRef = null, unsubEntries = null;
+  var resolveReady; var ready = new Promise(function(r){ resolveReady = r; });
+  function lsRead(){ try { var r = localStorage.getItem(LS_KEY); var a = r ? JSON.parse(r) : []; return Array.isArray(a) ? a.map(function(o){ return norm(o); }).filter(Boolean) : []; } catch(e){ return []; } }
+  function lsWrite(){ try { localStorage.setItem(LS_KEY, JSON.stringify(entries)); return true; } catch(e){ return false; } }
+  function wait(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+
+  var saveChain = Promise.resolve();
+  function saveSettings(){
+    try { localStorage.setItem(SET_KEY, JSON.stringify(settings)); } catch(e){}
+    if (!settingsRef) return Promise.resolve(true);
+    var snapshot = JSON.parse(JSON.stringify(settings));
+    saveChain = saveChain.then(function(){
+      if (!settingsRef) return true;
+      return settingsRef.set(snapshot).then(function(){ return true; }, function(err){
+        if (err && err.code === "invalid_argument"){ settingsRef = null; return true; }
+        return false;
+      });
+    });
+    return saveChain;
+  }
+  function switchToLocal(){
+    if (unsubEntries){ try { unsubEntries(); } catch(e){} unsubEntries = null; }
+    col = null; settingsRef = null; mode = "local";
+    entries = lsRead(); loaded = true;
+    render();
+  }
+  function errText(err){
+    var code = err && err.code;
+    if (code === "quota_exceeded") return "Skladište je puno. Obriši stara sipanja pa probaj ponovo.";
+    if (code === "resource_exhausted") return "Previše izmena odjednom. Sačekaj par sekundi pa probaj ponovo.";
+    return "Nije sačuvano. Proveri internet vezu pa probaj ponovo.";
+  }
+  async function addEntry(data){
+    if (mode === "db" && col){
+      try { await col.add(data); return true; }
+      catch(err){
+        var e1 = err;
+        if (e1 && e1.code === "unavailable"){ await wait(500 + Math.random()*700); try { await col.add(data); return true; } catch(err2){ e1 = err2; } }
+        if (e1 && e1.code === "invalid_argument") switchToLocal();
+        else { setMsg(errText(e1), "err"); return false; }
+      }
+    }
+    var e = Object.assign({id:newId()}, data);
+    entries = entries.concat([e]);
+    var ok = lsWrite();
+    render();
+    if (!ok){ setMsg("Upisano, ali ovaj pregledač ne dozvoljava čuvanje. Sipanje će nestati kad zatvoriš aplikaciju.", "err"); return "warn"; }
+    return true;
+  }
+  async function removeEntry(id){
+    if (mode === "db" && col){
+      try { await col.doc(id).delete(); } catch(err){ setMsg(errText(err).replace("Nije sačuvano", "Nije obrisano"), "err"); render(); }
+      return;
+    }
+    entries = entries.filter(function(e){ return e.id !== id; });
+    lsWrite(); render();
+  }
+  async function removeMany(ids){
+    if (!ids.length) return;
+    if (mode === "db" && col){
+      for (var i = 0; i < ids.length; i++){ try { await col.doc(ids[i]).delete(); } catch(e){} }
+      return;
+    }
+    var set = {}; ids.forEach(function(i){ set[i] = true; });
+    entries = entries.filter(function(e){ return !set[e.id]; });
+    lsWrite(); render();
+  }
+
+  /* Outside Claude (the website on GitHub Pages) the latest prices come from cene.json next to the page,
+     which the weekly price robot keeps up to date. The built-in copy is used until it arrives, or if it can't be read. */
+  function loadWebPrices(){
+    try {
+      fetch("cene.json?t=" + Date.now(), {cache:"no-store"}).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+        if (d && (Number(d.eurodizel) > 0 || Number(d.bmb95) > 0) && d.pumpe){ prices = d; fuelKey = ""; renderAuto(); refillAuto(); if (!$("view-settings").hidden) renderAbout(); }
+      }, function(){});
+    } catch(e){}
+  }
+  async function init(){
+    if (WEB){ loadWebPrices(); mode = "local"; entries = lsRead(); loaded = true; render(); resolveReady(); return; }
+    var db = null, user = null, uid = null, canWrite = null;
+    try {
+      if (window.claude && typeof window.claude.use === "function"){
+        var both = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+        db = both[0]; user = both[1];
+      }
+    } catch(e){}
+    if (db && user){
+      try { uid = await user.id(); } catch(e){}
+      try { canWrite = await user.can("data.write"); } catch(e){}
+    }
+    if (db){
+      try {
+        db.doc("cene/aktuelne").onSnapshot(function(s){
+          var d = s.exists ? s.data() : null;
+          prices = d && (Number(d.eurodizel) > 0 || Number(d.bmb95) > 0) ? d : BUILTIN_PRICES;
+          fuelKey = ""; renderAuto(); refillAuto();
+        }, function(){});
+      } catch(e){}
+    }
+    /* People who may only view the page (e.g. opened through a shared link) cannot save to the account: they keep their log on the device. */
+    if (db && uid && canWrite !== false){
+      try { settingsRef = db.doc("data/users/" + uid + "/gorivo"); col = settingsRef.collection("tocenja"); }
+      catch(e){ col = null; settingsRef = null; }
+      if (settingsRef){
+        try {
+          var s = await settingsRef.get();
+          if (s.exists && s.data()){ applySettings(s.data()); try { localStorage.setItem(SET_KEY, JSON.stringify(settings)); } catch(e){} }
+        } catch(e){}
+      }
+    }
+    if (col){
+      mode = "db"; render();
+      unsubEntries = col.onSnapshot(function(snap){
+        entries = snap.docs.map(function(d){ return norm(d.data(), d.id); }).filter(Boolean);
+        loaded = true; render();
+      }, function(){ setMsg("Veza sa nalogom je prekinuta. Osveži stranicu.", "err"); });
+    } else {
+      mode = "local"; entries = lsRead(); loaded = true; render();
+    }
+    resolveReady();
+  }
+
+  /* ---------- form ---------- */
+  var msgTimer = null;
+  function setMsg(text, kind){
+    var m = $("msg");
+    m.textContent = text; m.className = "msg" + (kind ? " " + kind : "");
+    clearTimeout(msgTimer);
+    if (kind === "ok") msgTimer = setTimeout(function(){ m.textContent = ""; m.className = "msg"; }, 3500);
+  }
+  function couponValue(){ return $("couponBox").hidden ? 0 : (parseNum($("fCoupon").value) || 0); }
+  function formModel(){
+    var c = activeCar(), id = curFuel(), fi = c ? fuelInfo(id, c.pumpa) : null;
+    var skip = $("fNoDisc").checked && !$("noDiscRow").hidden, coupon = couponValue();
+    var disc = c && !skip ? discountFor(c.pumpa, id) : null;
+    if (disc && coupon > 0 && !disc.kuponSabira) disc = null;   // the coupon replaces the discount for this fill-up
+    return {price: fi ? fi.cena : null, disc: disc, coupon: coupon, datum: $("fDate").value || iso(new Date())};
+  }
+
+  /* Liters and dinars fill each other from today's price (after discounts); whichever field the person typed wins. */
+  var autoField = null;
+  function updateHint(){
+    var h = $("priceHint"), m = formModel();
+    if ($("fRead").checked){ h.textContent = "Očitavanje ne ulazi u troškove."; return; }
+    if (!m.price){ h.textContent = "Cene nisu dostupne, upiši i litre i dinare."; return; }
+    var l = parseNum($("fL").value);
+    if (autoField && l > 0){
+      var r = priceModel(l, m.price, m.disc, m.coupon, m.datum);
+      h.textContent = "Po ceni " + fmtPrice(m.price) + " din/l" + (r.save > 0 ? ", ušteda " + din(r.save) : "") + (r.bodovi > 0 ? ", bodovi oko " + din(r.bodovi) : "");
+    } else h.textContent = "Upiši litre ili dinare, drugo se popuni samo.";
+  }
+  function fillFromL(){
+    var l = parseNum($("fL").value), m = formModel(), cEl = $("fCost");
+    if (autoField === "C" || !cEl.value.trim()){
+      if (l > 0 && m.price){ cEl.value = String(Math.round(priceModel(l, m.price, m.disc, m.coupon, m.datum).cost)); autoField = "C"; cEl.removeAttribute("aria-invalid"); }
+      else if (autoField === "C"){ cEl.value = ""; autoField = null; }
+    }
+  }
+  function fillFromC(){
+    var v = parseNum($("fCost").value), m = formModel(), lEl = $("fL");
+    if (autoField === "L" || !lEl.value.trim()){
+      if (v > 0 && m.price){ lEl.value = litersText(litersForCost(v, m.price, m.disc, m.coupon, m.datum)); autoField = "L"; lEl.removeAttribute("aria-invalid"); }
+      else if (autoField === "L"){ lEl.value = ""; autoField = null; }
+    }
+  }
+  function refillAuto(){ syncNoDisc(); if (autoField === "C") fillFromL(); else if (autoField === "L") fillFromC(); updateHint(); }
+  $("fL").addEventListener("input", function(){ if (autoField === "L") autoField = null; this.removeAttribute("aria-invalid"); fillFromL(); updateHint(); });
+  $("fCost").addEventListener("input", function(){ if (autoField === "C") autoField = null; this.removeAttribute("aria-invalid"); fillFromC(); updateHint(); });
+  $("fCoupon").addEventListener("input", function(){ renderAuto(); refillAuto(); });
+  $("fNoDisc").addEventListener("change", function(){ renderAuto(); refillAuto(); });
+  $("fDate").addEventListener("change", refillAuto);
+  $("fKm").addEventListener("input", function(){ this.removeAttribute("aria-invalid"); });
+  $("couponToggle").addEventListener("click", function(){
+    var box = $("couponBox"), open = box.hidden; box.hidden = !open;
+    this.setAttribute("aria-expanded", open ? "true" : "false");
+    this.textContent = open ? "Bez kupona" : "Imam kupon za ovo sipanje";
+    if (!open) $("fCoupon").value = ""; else $("fCoupon").focus();
+    renderAuto(); refillAuto();
+  });
+
+  function setReadingMode(){
+    var on = $("fRead").checked;
+    ["fL", "fCost"].forEach(function(id){ var n = $(id); n.disabled = on; if (on){ n.value = ""; n.removeAttribute("aria-invalid"); } });
+    if (on) autoField = null;
+    $("saveBtn").textContent = on ? "Sačuvaj očitavanje" : "Sačuvaj sipanje";
+    $("gaugeLegend").textContent = on ? "Gde je kazaljka sada?" : "Gde je kazaljka posle sipanja?";
+    $("fKm").placeholder = on ? "obavezno za očitavanje" : ($("fKm").dataset.ph || "sa sata");
+    $("couponToggle").hidden = on;
+    syncNoDisc();
+    updateHint();
+  }
+  $("fRead").addEventListener("change", function(){ setReadingMode(); renderAuto(); });
+
+  function fail(id, text){ var n = $(id); if (n.type !== "radio") n.setAttribute("aria-invalid", "true"); n.focus(); setMsg(text, "err"); }
+
+  $("form").addEventListener("submit", async function(ev){
+    ev.preventDefault();
+    var c = activeCar(); if (!c) return;
+    var datum = $("fDate").value || iso(new Date());
+    var reading = $("fRead").checked, cap = c.rezervoar, m = formModel();
+    var l = 0, cost = 0, model = null;
+    if (!reading){
+      l = parseNum($("fL").value); cost = parseNum($("fCost").value);
+      if (!(l > 0) && !(cost > 0)) return fail("fL", "Upiši koliko si sipao, u litrima ili u dinarima. Ako nisi sipao, štikliraj „Samo očitavanje“.");
+      if (!(l > 0)){ if (m.price) l = litersForCost(cost, m.price, m.disc, m.coupon, datum); else return fail("fL", "Upiši i litre. Cene trenutno nisu dostupne, pa se ne računaju same."); }
+      if (!(cost > 0)){ if (m.price) cost = priceModel(l, m.price, m.disc, m.coupon, datum).cost; else return fail("fCost", "Upiši i dinare. Cene trenutno nisu dostupne, pa se ne računaju same."); }
+      if (cap && l > cap*1.05) return fail("fL", "U rezervoar od " + litersText(cap) + " l ne staje " + litersText(l) + " l. Proveri litre ili veličinu rezervoara.");
+      if (m.price) model = priceModel(l, m.price, m.disc, m.coupon, datum);
+    }
+    var nEl = document.querySelector('input[name="nivo"]:checked');
+    if (!nEl) return fail("n1", reading ? "Dodirni gde je kazaljka sada." : "Dodirni gde je kazaljka posle sipanja.");
+    var nivo = Number(nEl.value);
+    if (!reading && cap && nivo*cap + cap*0.15 < l) return fail("n1", "Posle " + litersText(l) + " l kazaljka ne može biti na " + LEVELS[String(nivo)] + ". Proveri litre ili kazaljku.");
+    var km = null, kmRaw = $("fKm").value.trim();
+    if (reading && !kmRaw) return fail("fKm", "Za očitavanje upiši kilometražu sa sata.");
+    if (kmRaw){
+      km = parseKm(kmRaw);
+      if (!(km > 0)) return fail("fKm", "Upiši kilometražu sa sata, npr. 184520, ili ostavi prazno.");
+      var prev = entries.filter(function(e){ return e.km && carOf(e) === c.id && e.datum <= datum; }).map(function(e){ return e.km; });
+      var prevMax = prev.length ? Math.max.apply(null, prev) : 0;
+      if (km <= prevMax) return fail("fKm", "Kilometraža mora biti veća od prethodne (" + f0.format(prevMax) + " km).");
+    }
+    var btn = $("saveBtn"); btn.disabled = true;
+    await ready;
+    var fuelId = curFuel(), data;
+    if (reading) data = {auto:c.id, datum:datum, t:Date.now(), litara:0, cena:0, nivo:nivo, km:km, ocitavanje:true};
+    else {
+      data = {auto:c.id, datum:datum, t:Date.now(), litara:round2(l), cena:Math.round(cost), nivo:nivo, km:km, vrsta:fuelId, pumpa:c.pumpa, gorivo:(fuelInfo(fuelId, c.pumpa) || {naziv:BASE_NAMES[fuelId] || ""}).naziv};
+      if (model && model.save > 0) data.ustedjeno = Math.round(model.save);
+      if (model && model.bodovi > 0) data.bodovi = Math.round(model.bodovi);
+      if (model && m.disc && model.discLiters > 0){ data.popustId = m.disc.id; data.popustLitara = round2(model.discLiters); }
+    }
+    var ok = await addEntry(data);
+    btn.disabled = false;
+    if (ok){
+      $("fL").value = ""; $("fCost").value = ""; $("fKm").value = ""; $("fCoupon").value = ""; autoField = null;
+      if (!$("couponBox").hidden) $("couponToggle").click();
+      document.querySelectorAll('input[name="nivo"]').forEach(function(r){ r.checked = false; });
+      $("fRead").checked = false; $("fNoDisc").checked = false; setReadingMode(); renderAuto(); updateHint();
+      if (ok === true) setMsg(reading ? "Očitavanje je sačuvano." : "Sipanje je sačuvano." + (data.ustedjeno ? " Ušteda: " + din(data.ustedjeno) + "." : ""), "ok");
+    }
+  });
+
+  $("fDate").value = iso(new Date());
+  render();
+  updateHint();
+  init();
+})();
+</script>
+
+</body></html>
