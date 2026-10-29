@@ -34,6 +34,6 @@ jobs:
         with:
           tag_name: najnovija
           name: Dnevnik goriva
-          body: Skini DnevnikGoriva.apk i otvori ga na Android telefonu.
+          body_path: OPIS.md
           files: DnevnikGoriva.apk
           make_latest: true
