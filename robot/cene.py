@@ -24,6 +24,7 @@ import os
 import re
 import sys
 import urllib.parse
+import urllib.error
 import urllib.request
 from zoneinfo import ZoneInfo
 
@@ -221,16 +222,30 @@ def premium_from_table():
 
 # ---------------------------------------------------------------- Telegram
 
+TELEGRAM_FAILED = []
+
 def telegram(text):
     print("---- poruka ----\n" + text + "\n----------------")
-    token, chat = os.environ.get("TELEGRAM_TOKEN"), os.environ.get("TELEGRAM_CHAT_ID")
-    if not token or not chat or os.environ.get("CENE_TEST_DIR"):
+    token = (os.environ.get("TELEGRAM_TOKEN") or "").strip()
+    chat = (os.environ.get("TELEGRAM_CHAT_ID") or "").strip()
+    if os.environ.get("CENE_TEST_DIR"):
+        return
+    if not token or not chat:
+        print("::error::Nedostaje GitHub tajna " + ("TELEGRAM_TOKEN" if not token else "TELEGRAM_CHAT_ID"))
+        TELEGRAM_FAILED.append(-1)
         return
     data = urllib.parse.urlencode({"chat_id": chat, "text": text, "disable_web_page_preview": "true"}).encode()
     try:
         urllib.request.urlopen(f"https://api.telegram.org/bot{token}/sendMessage", data=data, timeout=30).read()
+        print("Telegram poruka poslata.")
+    except urllib.error.HTTPError as e:
+        why = e.read().decode("utf-8", "replace")[:200]
+        # a GitHub annotation, so the reason shows on the run page; the token itself never appears here
+        print(f"::error::Telegram nije primio poruku: HTTP {e.code} {why}")
+        TELEGRAM_FAILED.append(e.code)
     except Exception as e:  # noqa: BLE001
-        print(f"Telegram poruka nije poslata: {type(e).__name__}", file=sys.stderr)
+        print(f"::error::Telegram nije dostupan: {type(e).__name__}")
+        TELEGRAM_FAILED.append(0)
 
 
 # ---------------------------------------------------------------- test run
@@ -387,4 +402,6 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    code = main()
+    # prices are still saved, but a report that never arrived makes the run red, so it gets noticed
+    sys.exit(code or (1 if TELEGRAM_FAILED else 0))
