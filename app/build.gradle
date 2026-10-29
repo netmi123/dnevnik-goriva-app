@@ -15,12 +15,14 @@ android {
     }
 
     // Fixed signing key, so a newer APK installs over the old one without uninstalling.
+    // The key and its password are not in the repository: the build workflow writes them
+    // from the GitHub secrets KEYSTORE_BASE64 and KEYSTORE_PASSWORD.
     signingConfigs {
         stalni {
-            storeFile file("dnevnik.jks")
-            storePassword "vls9sPryIohtZPpDwTRRLAM"
+            storeFile file(System.getenv("KEYSTORE_FILE") ?: "dnevnik.jks")
+            storePassword System.getenv("KEYSTORE_PASSWORD")
             keyAlias "dnevnik"
-            keyPassword "vls9sPryIohtZPpDwTRRLAM"
+            keyPassword System.getenv("KEYSTORE_PASSWORD")
         }
     }
     buildTypes {
