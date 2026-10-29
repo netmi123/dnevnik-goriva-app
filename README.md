@@ -7,7 +7,8 @@ Android aplikacija za praćenje potrošnje i troškova goriva, za vozače u Srbi
 - Potrošnja na 100 km bez sipanja do kraja (preko kazaljke i veličine rezervoara)
 - Aktuelne cene evrodizela i BMB 95, osvežavaju se svakog petka
 - Premium goriva po pumpama i tvoji popusti (npr. MOL Move)
-- Više automobila, statistika, podsetnik za servis i izvoz u Excel
+- Pređeni kilometri, praćenje malog i velikog servisa
+- Više automobila, statistika i izvoz u Excel
 
 Podaci ostaju u tvom telefonu. Nema reklama i ne traži nikakve dozvole osim interneta.
 

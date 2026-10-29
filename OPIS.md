@@ -8,8 +8,9 @@ Besplatna aplikacija za praćenje goriva: koliko trošiš na 100 km, koliko te k
 - **Premium goriva po pumpama:** NIS Petrol, MOL, OMV, EKO, AVIA i Euro Petrol.
 - **Tvoji popusti.** Popust iz aplikacije pumpe (npr. MOL Move) upišeš jednom i dalje se računa sam.
 - **Garaža.** Više automobila, svaki sa svojim rezervoarom i potrošnjom, plus zbirni pregled.
-- **Statistika.** Pređeni kilometri, troškovi po mesecu, najbolja i najgora potrošnja, procena za celu godinu i ušteda na popustima.
-- **Podsetnik za servis** po kilometraži.
+- **Pređeni kilometri.** Ukupno, dnevno i mesečno, sa procenom za celu godinu.
+- **Statistika.** Troškovi po mesecu, najbolja i najgora potrošnja, procena za celu godinu i ušteda na popustima.
+- **Mali i veliki servis.** Upišeš na koliko kilometara se rade, a aplikacija pokaže koliko je ostalo i podseti te kad se približiš.
 - **Izvoz u tabelu** za Excel.
 
 ### Kako da instaliraš (Android)
