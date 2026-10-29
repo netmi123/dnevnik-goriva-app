@@ -3,6 +3,10 @@ name: Napravi APK
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - cene.json
+      - robot/**
+      - .github/workflows/cene.yml
   workflow_dispatch:
 
 permissions:

@@ -1,0 +1,75 @@
+name: Cene goriva (robot)
+
+# Times are UTC. Prices change on Friday at 15:00 in Serbia.
+#   Friday 15:17 UTC   first try, right after the new prices are out
+#   Saturday 07:17 UTC retry, for whatever was still missing
+#   Sunday 08:17 UTC   last try: anything still missing is reported on Telegram
+# "Run workflow" on the Actions page starts a manual check that always reports;
+# choosing "proba" only reads the sources and reports what it found, without writing anything.
+on:
+  schedule:
+    - cron: "17 15 * * 5"
+    - cron: "17 7 * * 6"
+    - cron: "17 8 * * 0"
+  workflow_dispatch:
+    inputs:
+      nacin:
+        description: "rucno = proveri i upiši, proba = samo pročitaj i javi"
+        type: choice
+        options: [rucno, proba]
+        default: rucno
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cene-goriva
+  cancel-in-progress: false
+
+jobs:
+  cene:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Pripremi
+        run: pip install --quiet beautifulsoup4
+
+      - name: Proveri cene
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_KIND: >-
+            ${{ github.event_name == 'workflow_dispatch' && inputs.nacin
+             || github.event.schedule == '17 15 * * 5' && 'glavni'
+             || github.event.schedule == '17 7 * * 6' && 'ponovo'
+             || 'poslednji' }}
+        run: python robot/cene.py
+
+      - name: Sačuvaj nove cene
+        run: |
+          if git diff --quiet -- cene.json; then
+            echo "Cene se nisu menjale."
+            exit 0
+          fi
+          git config user.name "Robot za cene"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cene.json
+          git commit -m "Cene goriva $(date +%d.%m.%Y)"
+          git push
+
+      - name: Javi ako je robot pukao
+        if: failure()
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          curl -s -o /dev/null "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=❌ Robot za cene goriva je pukao i ništa nije upisao. U aplikaciji su ostale stare cene. Detalji: ${RUN_URL}"
