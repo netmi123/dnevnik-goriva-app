@@ -16,6 +16,36 @@ public class MainActivity extends Activity {
 
     private static final String APP_URL = "https://claude.ai/artifact/XxHYWb119SLFVgDeR756k7";
 
+    /*
+     * Hides the floating "Sign in to see this artifact's data" pop-up that Claude shows to visitors who are not
+     * signed in. The "Sign in" button in the top bar stays, so signing in is still possible.
+     * It looks for the pop-up by its text, so if Claude changes the wording the pop-up simply shows again.
+     */
+    private static final String HIDE_SIGNIN_TOAST =
+            "(function(){"
+          + " if (window.__dgHide) return; window.__dgHide = true;"
+          + " var PHRASES = ['sign in to see this artifact', 'prijavi se da vidi'];"
+          + " function matches(t){ t = (t || '').toLowerCase(); for (var i = 0; i < PHRASES.length; i++) if (t.indexOf(PHRASES[i]) >= 0) return true; return false; }"
+          + " function hide(){"
+          + "  var all = document.body ? document.body.querySelectorAll('div,section,aside,[role=status],[role=dialog],[role=alert]') : [];"
+          + "  for (var i = 0; i < all.length; i++){"
+          + "   var el = all[i];"
+          + "   if (el.dataset.dgHidden || !matches(el.textContent) || el.textContent.length > 200) continue;"
+          + "   var box = el, n = 0;"
+          + "   while (box && box !== document.body && n < 8){"
+          + "    var pos = getComputedStyle(box).position;"
+          + "    if (pos === 'fixed' || pos === 'sticky' || pos === 'absolute') break;"
+          + "    box = box.parentElement; n++;"
+          + "   }"
+          + "   if (!box || box === document.body || box.textContent.length > 200) box = el;"
+          + "   box.style.setProperty('display', 'none', 'important');"
+          + "   box.dataset.dgHidden = '1'; el.dataset.dgHidden = '1';"
+          + "  }"
+          + " }"
+          + " hide();"
+          + " new MutationObserver(hide).observe(document.documentElement, {childList: true, subtree: true});"
+          + "})();";
+
     private WebView web;
 
     @Override
@@ -37,6 +67,12 @@ public class MainActivity extends Activity {
         cookies.setAcceptThirdPartyCookies(web, true);   // the app runs in an embedded frame
 
         web.setWebViewClient(new WebViewClient() {
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                super.onPageFinished(view, url);
+                view.evaluateJavascript(HIDE_SIGNIN_TOAST, null);
+            }
+
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 if (!request.isForMainFrame()) return false;
