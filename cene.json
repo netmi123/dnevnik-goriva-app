@@ -3,8 +3,8 @@
  "bmb95": 207,
  "vaziOd": "2026-10-23",
  "vaziDo": "2026-10-30",
- "premiumOd": "2026-10-23",
- "provereno": "2026-10-28",
+ "premiumOd": "2026-10-30",
+ "provereno": "2026-10-30",
  "prethodno": {
   "eurodizel": 236,
   "bmb95": 207
@@ -15,11 +15,13 @@
    "goriva": {
     "dizel_p": {
      "naziv": "G-Drive Diesel",
-     "cena": 251
+     "cena": 251.0,
+     "pre": 251
     },
     "bmb_p100": {
      "naziv": "G-Drive 100",
-     "cena": 230
+     "cena": 230.0,
+     "pre": 230
     }
    }
   },
@@ -28,11 +30,13 @@
    "goriva": {
     "dizel_p": {
      "naziv": "Dizel Plus",
-     "cena": 252.9
+     "cena": 252.9,
+     "pre": 252.9
     },
     "bmb_p95": {
      "naziv": "BMB 95+",
-     "cena": 238.9
+     "cena": 238.9,
+     "pre": 238.9
     }
    }
   },
@@ -41,15 +45,18 @@
    "goriva": {
     "dizel_p": {
      "naziv": "MaxxMotion Diesel",
-     "cena": 253.9
+     "cena": 253.9,
+     "pre": 253.9
     },
     "bmb_p95": {
      "naziv": "MaxxMotion 95",
-     "cena": 227.9
+     "cena": 227.9,
+     "pre": 227.9
     },
     "bmb_p100": {
      "naziv": "MaxxMotion 100",
-     "cena": 238.9
+     "cena": 238.9,
+     "pre": 238.9
     }
    }
   },
@@ -58,11 +65,13 @@
    "goriva": {
     "dizel_p": {
      "naziv": "Gold Evro Dizel",
-     "cena": 252.9
+     "cena": 252.9,
+     "pre": 252.9
     },
     "bmb_p100": {
      "naziv": "BMB 100",
-     "cena": 235.9
+     "cena": 235.9,
+     "pre": 235.9
     }
    }
   },
@@ -71,11 +80,13 @@
    "goriva": {
     "dizel_p": {
      "naziv": "Dizel Gold",
-     "cena": 250.9
+     "cena": 250.9,
+     "pre": 250.9
     },
     "bmb_p100": {
      "naziv": "BMB 100",
-     "cena": 229.9
+     "cena": 229.9,
+     "pre": 229.9
     }
    }
   },
@@ -84,11 +95,13 @@
    "goriva": {
     "dizel_p": {
      "naziv": "Expert Dizel",
-     "cena": 250.9
+     "cena": 250.9,
+     "pre": 250.9
     },
     "bmb_p95": {
      "naziv": "Expert BMB",
-     "cena": 229.9
+     "cena": 229.9,
+     "pre": 229.9
     }
    }
   }
