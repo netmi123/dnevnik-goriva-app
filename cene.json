@@ -1,10 +1,10 @@
 {
- "eurodizel": 236,
- "bmb95": 207,
- "vaziOd": "2026-10-23",
- "vaziDo": "2026-10-30",
+ "eurodizel": 236.0,
+ "bmb95": 207.0,
+ "vaziOd": "2026-11-06",
+ "vaziDo": "2026-11-13",
  "premiumOd": "2026-10-30",
- "provereno": "2026-10-30",
+ "provereno": "2026-11-06",
  "prethodno": {
   "eurodizel": 236,
   "bmb95": 207
