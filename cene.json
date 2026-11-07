@@ -3,8 +3,8 @@
  "bmb95": 207.0,
  "vaziOd": "2026-11-06",
  "vaziDo": "2026-11-13",
- "premiumOd": "2026-10-30",
- "provereno": "2026-11-06",
+ "premiumOd": "2026-11-06",
+ "provereno": "2026-11-07",
  "prethodno": {
   "eurodizel": 236,
   "bmb95": 207
@@ -16,12 +16,12 @@
     "dizel_p": {
      "naziv": "G-Drive Diesel",
      "cena": 251.0,
-     "pre": 251
+     "pre": 251.0
     },
     "bmb_p100": {
      "naziv": "G-Drive 100",
      "cena": 230.0,
-     "pre": 230
+     "pre": 230.0
     }
    }
   },
@@ -30,7 +30,7 @@
    "goriva": {
     "dizel_p": {
      "naziv": "Dizel Plus",
-     "cena": 252.9,
+     "cena": 253.9,
      "pre": 252.9
     },
     "bmb_p95": {
