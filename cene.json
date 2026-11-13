@@ -1,13 +1,13 @@
 {
  "eurodizel": 236.0,
  "bmb95": 207.0,
- "vaziOd": "2026-11-06",
- "vaziDo": "2026-11-13",
- "premiumOd": "2026-11-06",
- "provereno": "2026-11-07",
+ "vaziOd": "2026-11-13",
+ "vaziDo": "2026-11-20",
+ "premiumOd": "2026-11-13",
+ "provereno": "2026-11-13",
  "prethodno": {
-  "eurodizel": 236,
-  "bmb95": 207
+  "eurodizel": 236.0,
+  "bmb95": 207.0
  },
  "pumpe": {
   "nis": {
@@ -31,7 +31,7 @@
     "dizel_p": {
      "naziv": "Dizel Plus",
      "cena": 253.9,
-     "pre": 252.9
+     "pre": 253.9
     },
     "bmb_p95": {
      "naziv": "BMB 95+",
