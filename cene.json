@@ -3,8 +3,8 @@
  "bmb95": 207.0,
  "vaziOd": "2026-11-13",
  "vaziDo": "2026-11-20",
- "premiumOd": "2026-11-13",
- "provereno": "2026-11-13",
+ "premiumOd": "2026-11-20",
+ "provereno": "2026-11-22",
  "prethodno": {
   "eurodizel": 236.0,
   "bmb95": 207.0
@@ -20,7 +20,7 @@
     },
     "bmb_p100": {
      "naziv": "G-Drive 100",
-     "cena": 230.0,
+     "cena": 227.0,
      "pre": 230.0
     }
    }
@@ -35,7 +35,7 @@
     },
     "bmb_p95": {
      "naziv": "BMB 95+",
-     "cena": 238.9,
+     "cena": 235.9,
      "pre": 238.9
     }
    }
@@ -50,12 +50,12 @@
     },
     "bmb_p95": {
      "naziv": "MaxxMotion 95",
-     "cena": 227.9,
+     "cena": 224.9,
      "pre": 227.9
     },
     "bmb_p100": {
      "naziv": "MaxxMotion 100",
-     "cena": 238.9,
+     "cena": 235.9,
      "pre": 238.9
     }
    }
@@ -70,7 +70,7 @@
     },
     "bmb_p100": {
      "naziv": "BMB 100",
-     "cena": 235.9,
+     "cena": 233.9,
      "pre": 235.9
     }
    }
@@ -85,7 +85,7 @@
     },
     "bmb_p100": {
      "naziv": "BMB 100",
-     "cena": 229.9,
+     "cena": 226.9,
      "pre": 229.9
     }
    }
@@ -100,7 +100,7 @@
     },
     "bmb_p95": {
      "naziv": "Expert BMB",
-     "cena": 229.9,
+     "cena": 226.9,
      "pre": 229.9
     }
    }
